@@ -1,0 +1,27 @@
+﻿@model E_Diary.WEB.Models.LoginModel
+
+<h2>Вход на сайт</h2>
+<form asp-action="Login" asp-controller="Account" asp-anti-forgery="true">
+    <div class="validation alert-danger" asp-validation-summary="All"></div>
+    <div>
+        <div class="form-group">
+            <input type="text" asp-for="Username" placeholder="Имя пользователя"/>
+            <span asp-validation-for="Username" />
+        </div>
+        <div class="form-group">
+            <input asp-for="Password" placeholder="Пароль" />
+            <span asp-validation-for="Password" />
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Войти" class="btn" />
+        </div>
+        @if(ViewBag.Message != null)
+        {
+            <div class="form-group">
+                <p class="alert-danger">
+                    @ViewBag.Message
+                </p>
+            </div>
+        }
+    </div>
+</form>

@@ -1,0 +1,24 @@
+﻿@using E_Diary.WEB.Data.Entities
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+
+<ul class="navbar-nav">
+@if (SignInManager.IsSignedIn(User))
+{
+    <li class="nav-item">
+        <a  class="nav-link text-dark" asp-action="Profile" asp-controller="Account" title="Manage">@User.Identity?.Name</a>
+    </li>
+    <li class="nav-item">
+            <form class="form-inline" asp-action="LogOut" asp-controller="Account">
+            <button  type="submit" class="nav-link btn btn-link text-dark">Выйти</button>
+        </form>
+    </li>
+}
+else
+{
+    <li class="nav-item">
+            <a class="nav-link text-dark" asp-controller="Account" asp-action="Login"><img alt="user-unauthorized.svg" src="~/src/images/user-unauthorized.svg" style="height:1em; width:1em; object-fit:contain" />Войти</a>
+    </li>
+}
+</ul>

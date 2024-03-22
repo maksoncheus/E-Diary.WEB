@@ -1,0 +1,43 @@
+﻿@using E_Diary.WEB.Data.Entities
+@model E_Diary.WEB.Models.GroupViewModel
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h1>Удалить</h1>
+
+<h3>Вы уверены?</h3>
+<h4 class="text-danger">При удалении класса, будут удалены все ученики в нём!</h4>
+<div>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Year)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Year)
+        </dd>
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.Literal)
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Literal)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Students)
+        </dt>
+        @foreach (Student student in Model.Students)
+        {
+            <dd>
+                @student.User.Surname @student.User.Name @student.User.Patronymic
+            </dd>
+        }
+    </dl>
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Удалить" class="btn btn-danger" /> |
+        <a asp-action="Index"><button type="button" class="btn btn-secondary rounded-1">Вернуться к списку</button></a>
+    </form>
+</div>

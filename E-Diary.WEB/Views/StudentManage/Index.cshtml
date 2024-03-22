@@ -1,0 +1,100 @@
+﻿@model E_Diary.WEB.Helpers.PaginatedList<E_Diary.WEB.Data.Entities.Student>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Список учеников</h1>
+
+<p>
+    <a asp-action="Create"><button class="btn btn-success rounded-1">Добавить</button></a>
+</p>
+<form asp-action="Index" method="get">
+    <div class="form-actions no-color">
+        <p>
+            Найти по фамилии: <input type="text" name="SearchString" value="@ViewData["CurrentFilter"]" />
+            <input type="submit" value="Поиск" class="btn btn-default" /> |
+            <a asp-action="Index">Вернуться к полному списку</a>
+        </p>
+    </div>
+</form>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Имя
+            </th>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["NameSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Фамилия</a>
+            </th>
+            <th>
+                Отчество
+            </th>
+            <th>
+                Пол
+            </th>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewData["DateSortParm"]" asp-route-currentFilter="@ViewData["CurrentFilter"]">Класс</a>
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(model => item.User.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => item.User.Surname)
+                </td>
+                <td>
+                    @Html.DisplayFor(model => item.User.Patronymic)
+                </td>
+                @if (item.User.Gender == E_Diary.WEB.Data.Enums.Gender.Male)
+                {
+                    <td>
+                        Мужской
+                    </td>
+               }
+                else
+                {
+                    <td>
+                        Женский
+                    </td>
+                }
+                
+                <td>
+                    @item.Group.Year@item.Group.Literal
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id=@item.Id><button class="btn btn-primary rounded-1">Редактировать</button></a>
+                    <a asp-action="Details" asp-route-id=@item.Id><button class="btn btn-secondary rounded-1">Подробнее</button></a>
+                    <a asp-action="Delete" asp-route-id=@item.Id><button class="btn btn-danger rounded-1">Удалить</button></a>
+                    <a asp-action="GetResetPasswordLink" asp-controller="Account" asp-route-email=@item.User.Email><button class="btn btn-warning rounded-1">Сбросить пароль</button></a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@{
+    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+}
+
+<a asp-action="Index"
+   asp-route-sortOrder="@ViewData["CurrentSort"]"
+   asp-route-pageNumber="@(Model.PageIndex - 1)"
+   asp-route-currentFilter="@ViewData["CurrentFilter"]"
+   class="btn btn-default @prevDisabled">
+    Previous
+</a>
+<a asp-action="Index"
+   asp-route-sortOrder="@ViewData["CurrentSort"]"
+   asp-route-pageNumber="@(Model.PageIndex + 1)"
+   asp-route-currentFilter="@ViewData["CurrentFilter"]"
+   class="btn btn-default @nextDisabled">
+    Next
+</a>
