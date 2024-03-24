@@ -13,6 +13,9 @@ namespace E_Diary.WEB.Data
         public DbSet<Group> Groups { get; set; }
         public DbSet<Admin> Admins { get; set; }
         public DbSet<Student> Students { get; set; }
+        public DbSet<Lesson> Lessons { get; set; }
+        public DbSet<TeacherGroupSubject> TeacherGroupSubjects { get; set; }
+        public DbSet<Subject> Subjects { get; set; }
         public ASPIdentityDBContext(DbContextOptions<ASPIdentityDBContext> options)
             : base(options)
         {
@@ -23,6 +26,11 @@ namespace E_Diary.WEB.Data
         {
             base.OnModelCreating(builder);
             builder.Entity<User>().Property(x => x.Gender).HasConversion<int>();
+            builder.Entity<Lesson>().ToTable(t => 
+                t.HasCheckConstraint(
+                    "ValidLessonNumber",
+                    "LessonOnDayNumber > 1 AND LessonOnDayNumber < 10")
+                );
         }
     }
 }

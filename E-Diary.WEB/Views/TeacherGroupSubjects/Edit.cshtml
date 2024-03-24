@@ -1,0 +1,89 @@
+﻿@using E_Diary.WEB.Data.Entities
+@model E_Diary.WEB.Models.TeacherGroupSubjectViewModel
+@inject E_Diary.WEB.Data.ASPIdentityDBContext context
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Редактировать</h1>
+
+<h4>Предмет, назначенный классу и учителю</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            <input type="hidden" asp-for="Id" />
+            <div asp-validation-summary="All" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="TeacherId" class="control-label"></label>
+                <select asp-for="TeacherId" class="form-control selectpicker" data-live-search="true" required>
+                    @foreach (Teacher teacher in context.Teachers)
+                    {
+                        @if (teacher.Id == Model.TeacherId)
+                        {
+                            <option data-tokens="@teacher.User.Surname @teacher.User.Name @teacher.User.Patronymic"
+                            value="@teacher.Id" selected>
+                                @teacher.User.Surname @teacher.User.Name @teacher.User.Patronymic
+                            </option>
+                        }
+                        else
+                        {
+                            <option data-tokens="@teacher.User.Surname @teacher.User.Name @teacher.User.Patronymic"
+                                    value="@teacher.Id" selected>
+                                @teacher.User.Surname @teacher.User.Name @teacher.User.Patronymic
+                            </option>
+                        }
+                    }
+                </select>
+                <span asp-validation-for="TeacherId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="GroupId" class="control-label"></label>
+                <select asp-for="GroupId" class="form-control selectpicker" data-live-search="true" required>
+                    @foreach (Group group in context.Groups)
+                    {
+                        @if (group.Id == Model.GroupId)
+                        {
+                            <option data-tokens="@group.Year@group.Literal" value="@group.Id" selected>@group.Year@group.Literal</option>
+                        }
+                        else
+                        {
+                            <option data-tokens="@group.Year@group.Literal" value="@group.Id">@group.Year@group.Literal</option>
+                        }
+                    }
+                </select>
+                <span asp-validation-for="GroupId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SubjectId" class="control-label"></label>
+                <select asp-for="SubjectId" class="form-control selectpicker" data-live-search="true" required>
+                    @foreach (Subject subject in context.Subjects)
+                    {
+                        @if (subject.Id == Model.SubjectId)
+                        {
+                            <option selected data-tokens="@subject.Name" value="@subject.Id">@subject.Name</option>
+                        }
+                        else
+                        {
+                            <option data-tokens="@subject.Name" value="@subject.Id">@subject.Name</option>
+                        }
+                    }
+                </select>
+                <span asp-validation-for="SubjectId" class="text-danger"></span>
+            </div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <input type="submit" value="Сохранить" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index"><button type="button" class="btn btn-secondary rounded-1">Вернуться к списку</button></a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

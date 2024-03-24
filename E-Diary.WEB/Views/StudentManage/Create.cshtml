@@ -45,23 +45,23 @@
             <div class="form-group">
                 <label asp-for="Password" class="control-label"></label>
                 <div class="row" style="--bs-gutter-x:0">
-                <input type="text" asp-for="Password" class="form-control col" />
-                <button name="GeneratePassword" type="button" class="btn btn-success form-control col">Сгенерировать</button>
+                    <input type="text" asp-for="Password" class="form-control col" />
+                    <button name="GeneratePassword" type="button" class="btn btn-success form-control col">Сгенерировать</button>
                 </div>
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="GroupId" class="control-label"></label>
-                <select asp-for="GroupId" class="form-control" required>
-                    @foreach(Group group in context.Groups)
+                <select asp-for="GroupId" class="form-control selectpicker" data-live-search="true" required>
+                    @foreach (Group group in context.Groups)
                     {
-                        <option value="@group.Id">@group.Year@group.Literal</option>
+                        <option data-tokens="@group.Year@group.Literal" value="@group.Id">@group.Year@group.Literal</option>
                     }
                 </select>
                 <span asp-validation-for="GroupId" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <input type="submit" value="Добавить" class="btn btn-primary" />
+                <input type="submit" value="Добавить" class="btn btn-success" />
             </div>
         </form>
     </div>
@@ -72,6 +72,9 @@
 </div>
 
 @section Scripts {
+    
     <script src="~/js/GetGeneratedPassword.js" asp-append-version="true"></script>
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

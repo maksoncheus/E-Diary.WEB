@@ -10,14 +10,16 @@ using E_Diary.WEB.Data.Entities;
 using Microsoft.AspNetCore.Authorization;
 using E_Diary.WEB.Models;
 using Microsoft.AspNetCore.Identity;
+using E_Diary.WEB.Helpers;
+using Microsoft.Data.SqlClient;
 
 namespace E_Diary.WEB.Controllers
 {
-    public class GroupController : Controller
+    public class GroupManageController : Controller
     {
         private readonly ASPIdentityDBContext _context;
         private readonly UserManager<User> _userManager;
-        public GroupController(ASPIdentityDBContext context, UserManager<User> userManager)
+        public GroupManageController(ASPIdentityDBContext context, UserManager<User> userManager)
         {
             _context = context;
             _userManager = userManager;
@@ -25,9 +27,11 @@ namespace E_Diary.WEB.Controllers
 
         // GET: Group
         [Authorize(Roles = "admin")]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int? pageNumber)
         {
-            return View(await _context.Groups.ToListAsync());
+                var groups = await _context.Groups.ToListAsync();
+                int pageSize = 10;
+                return View(await PaginatedList<Group>.CreateAsync(groups, pageNumber ?? 1, pageSize));
         }
 
         // GET: Group/Details/5

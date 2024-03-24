@@ -15,11 +15,11 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="mx-3">
-                            <a asp-area="" asp-controller="Group" asp-action="Create"><button class="btn-primary rounded-2">Добавить класс</button></a>
+                        <li class="me-2">
+                            <a asp-area="" asp-controller="GroupManage" asp-action="Create"><button class="btn btn-success rounded-2">Добавить</button></a>
                         </li>
-                        <li class="mx-3">
-                            <a asp-area="" asp-controller="Group" asp-action="Index"><button class="btn-secondary rounded-2">Список классов</button></a>
+                        <li class="me-2">
+                            <a asp-area="" asp-controller="GroupManage" asp-action="Index"><button class="btn btn-secondary rounded-2">Список</button></a>
                         </li>
                     </ul>
                 </div>
@@ -36,11 +36,11 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="mx-3">
-                            <a asp-area="" asp-controller="StudentManage" asp-action="Create"><button class="btn-primary rounded-2">Добавить ученика</button></a>
+                        <li class="me-2">
+                            <a asp-area="" asp-controller="StudentManage" asp-action="Create"><button class="btn btn-success rounded-2">Добавить</button></a>
                         </li>
-                        <li class="mx-3">
-                            <a asp-area="" asp-controller="StudentManage" asp-action="Index"><button class="btn-secondary rounded-2">Список учеников</button></a>
+                        <li class="me-2">
+                            <a asp-area="" asp-controller="StudentManage" asp-action="Index"><button class="btn btn-secondary rounded-2">Список</button></a>
                         </li>
                     </ul>
                 </div>
@@ -57,11 +57,53 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="mx-3">
-                            <a asp-area="" asp-controller="TeacherManage" asp-action="Create"><button class="btn-primary rounded-2">Добавить учителя</button></a>
+                        <li class="me-2">
+                            <a asp-area="" asp-controller="TeacherManage" asp-action="Create"><button class="btn btn-success rounded-2">Добавить</button></a>
                         </li>
-                        <li class="mx-3">
-                            <a asp-area="" asp-controller="TeacherManage" asp-action="Index"><button class="btn-secondary rounded-2">Список учителей</button></a>
+                        <li class="me-2">
+                            <a asp-area="" asp-controller="TeacherManage" asp-action="Index"><button class="btn btn-secondary rounded-2">Список</button></a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </details>
+    <details class="accordion-item">
+        <summary class="accordion-button rounded-top border-bottom-0">Управление предметами</summary>
+        <nav class="accordion-body navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-top box-shadow mb-3">
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="me-2">
+                            <a asp-area="" asp-controller="SubjectsManage" asp-action="Create"><button class="btn btn-success rounded-2">Добавить</button></a>
+                        </li>
+                        <li class="me-2">
+                            <a asp-area="" asp-controller="SubjectsManage" asp-action="Index"><button class="btn btn-secondary rounded-2">Список</button></a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </details>
+    <details class="accordion-item">
+        <summary class="accordion-button rounded-top border-bottom-0">Управление предметами, назначенными классу и учителю</summary>
+        <nav class="accordion-body navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-top box-shadow mb-3">
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="me-2">
+                            <a asp-area="" asp-controller="TeacherGroupSubjects" asp-action="Create"><button class="btn btn-success rounded-2">Добавить</button></a>
+                        </li>
+                        <li class="me-2">
+                            <a asp-area="" asp-controller="TeacherGroupSubjects" asp-action="Index"><button class="btn btn-secondary rounded-2">Список</button></a>
                         </li>
                     </ul>
                 </div>
@@ -89,4 +131,4 @@
             </div>
         </nav>
     </details>
-</div>
+</div>    

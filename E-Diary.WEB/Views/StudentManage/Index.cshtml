@@ -6,9 +6,17 @@
 
 <h1>Список учеников</h1>
 
-<p>
-    <a asp-action="Create"><button class="btn btn-success rounded-1">Добавить</button></a>
-</p>
+<div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+    <ul class="navbar-nav flex-grow-1 flex-row">
+        <li class="me-2">
+            <a asp-area="" asp-controller="Admin" asp-action="Index"><button class="btn btn-secondary rounded-1">Назад</button></a>
+        </li>
+        <li class="me-2">
+            <a asp-area="" asp-action="Create"><button class="btn btn-success rounded-1">Добавить</button></a>
+        </li>
+    </ul>
+</div>
+
 <form asp-action="Index" method="get">
     <div class="form-actions no-color">
         <p>
