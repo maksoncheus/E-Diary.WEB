@@ -5,6 +5,6 @@
         public long Id { get; set; }
         public virtual TeacherGroupSubject LessonInfo { get; set; }
         public int LessonOnDayNumber { get; set; }
-        public DateTime Date {  get; set; }
+        public DateOnly Date {  get; set; }
     }
 }

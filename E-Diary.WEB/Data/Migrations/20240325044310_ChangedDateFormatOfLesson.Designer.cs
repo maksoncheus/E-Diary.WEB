@@ -4,6 +4,7 @@ using E_Diary.WEB.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace E_Diary.WEB.Data.Migrations
 {
     [DbContext(typeof(ASPIdentityDBContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240325044310_ChangedDateFormatOfLesson")]
+    partial class ChangedDateFormatOfLesson
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -93,7 +96,7 @@ namespace E_Diary.WEB.Data.Migrations
 
                     b.ToTable("Lessons", t =>
                         {
-                            t.HasCheckConstraint("ValidLessonNumber", "LessonOnDayNumber > 0 AND LessonOnDayNumber < 11");
+                            t.HasCheckConstraint("ValidLessonNumber", "LessonOnDayNumber > 1 AND LessonOnDayNumber < 10");
                         });
                 });
 

@@ -29,7 +29,7 @@ namespace E_Diary.WEB.Data
             builder.Entity<Lesson>().ToTable(t => 
                 t.HasCheckConstraint(
                     "ValidLessonNumber",
-                    "LessonOnDayNumber > 1 AND LessonOnDayNumber < 10")
+                    "LessonOnDayNumber > 0 AND LessonOnDayNumber < 11")
                 );
         }
     }
