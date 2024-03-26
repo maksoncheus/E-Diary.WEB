@@ -4,6 +4,7 @@ using E_Diary.WEB.Helpers;
 using E_Diary.WEB.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace E_Diary.WEB.Controllers
 {
@@ -61,6 +62,14 @@ namespace E_Diary.WEB.Controllers
                 return RedirectToAction(nameof(Index), new { groupId = tgs.Group.Id, date = date.ToString() });
             }
             return NotFound();
+        }
+        public async Task<IActionResult> DeleteLesson(int id)
+        {
+            Lesson? lesson = await _context.Lessons.FindAsync(id);
+            if (lesson == null)
+                return NotFound();
+            _context.Lessons.Remove(lesson);
+            await _context.SaveChangesAsync();
         }
     }
 }

@@ -32,7 +32,7 @@ namespace E_Diary.WEB
                 options.Password.RequiredLength = 8;
             })
                 .AddEntityFrameworkStores<ASPIdentityDBContext>().AddDefaultTokenProviders();
-            builder.Services.AddControllersWithViews();
+            builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
             var app = builder.Build();
 
             using (var scope = app.Services.CreateScope())
