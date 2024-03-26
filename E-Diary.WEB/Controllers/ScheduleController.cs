@@ -63,13 +63,15 @@ namespace E_Diary.WEB.Controllers
             }
             return NotFound();
         }
-        public async Task<IActionResult> DeleteLesson(int id)
+        public async Task<IActionResult> DeleteLesson(long id, string date, int groupId)
         {
             Lesson? lesson = await _context.Lessons.FindAsync(id);
             if (lesson == null)
                 return NotFound();
             _context.Lessons.Remove(lesson);
             await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index), new { groupId = groupId, date = date.ToString() });
+
         }
     }
 }
