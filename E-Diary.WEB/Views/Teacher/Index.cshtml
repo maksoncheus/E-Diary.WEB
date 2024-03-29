@@ -1,0 +1,68 @@
+﻿@using E_Diary.WEB.Data.Entities
+@using System.Globalization
+@inject E_Diary.WEB.Data.ASPIdentityDBContext context;
+<div class="w-33">
+    <h3>
+        Расписание на сегодня
+    </h3>
+    @{
+        DateOnly today = DateOnly.FromDateTime(DateTime.Today);
+        Teacher teacher = context.Teachers.FirstOrDefault(t => t.User.UserName == User.Identity.Name);
+    }
+    <div class="p-4 border-1 border-bottom border-top border-start border-end border-secondary" id="schedule">
+        <div class="schedule__day">
+            <div class="schedule__day__content">
+                <div class="schedule__day__content__header ">
+                    <h5>@CultureInfo.CurrentCulture.TextInfo.ToTitleCase(CultureInfo.CurrentCulture.DateTimeFormat.DayNames[(int)today.DayOfWeek])</h5>
+                </div>
+                <div class="schedule__day__content__column">
+                    @* here starts daily content *@
+                    @{
+                        List<Lesson> todayLessons = context.Lessons
+                        .Where(
+                        l => l.Date == today
+                        && l.LessonInfo.Teacher.Id == teacher.Id).ToList();
+                    }
+                    @for (int index = todayLessons.Min(l => l.LessonOnDayNumber);
+                    index <= todayLessons.Max(l => l.LessonOnDayNumber);
+                    index++)
+                    {
+                        string borderClass = index == todayLessons.Max(l => l.LessonOnDayNumber) ? "" : "border-bottom";
+                        List<Lesson> thisNumberLessons = todayLessons.Where(l => l.LessonOnDayNumber == index).ToList();
+                        if (thisNumberLessons.Count() != 0)
+                        {
+                            <div class="schedule__day__content__lesson  schedule__day__content__lesson--main">
+                                @* <div class="schedule__day__content__lesson__time">
+                        12:30–14:00
+                        </div> NOT IMPLEMENTED*@
+                                <div class="container-fluid d-flex @borderClass p-0">
+                                    <div class="container-fluid d-flex col-9 p-0">
+                                        <div class="col-2 text-center text-muted schedule__day__content__lesson__num">
+                                            @index
+                                        </div>
+                                        <div class="col-10 container-fluid d-flex flex-column schedule__day__content__lesson__data">
+                                            @foreach (Lesson lesson in thisNumberLessons)
+                                            {
+                                                <div>
+                                                    @* PROVIDE VALID HREF TO JOURNAL *@
+                                                    <a href="">
+                                                        @lesson.LessonInfo.Group.Year@lesson.LessonInfo.Group.Literal 
+                                                        @lesson.LessonInfo.Subject.Name
+                                                    </a>
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="col-3">
+                                        <div class="schedule__day__content__lesson__room " title="">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -78,9 +78,11 @@
                     </div>
                 </form>
             </div>
+            @{int iterator = 0;}
             @foreach (Lesson lesson in Model.Lessons.Where(l => l.Date == date).OrderBy(l => l.LessonOnDayNumber))
             {
-                <div class="container-fluid bg-transparent p-1">
+                string className = ++iterator % 2 == 0 ? "bg-transparent" : "bg-white bg-opacity-50";
+                <div class="container-fluid @className p-1">
                     <div class="row">
                         <div class="col-lg-6">
                             <p class="m-0 text-muted">

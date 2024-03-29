@@ -33,7 +33,7 @@ namespace E_Diary.WEB.Controllers
                 if (await _userManager.IsInRoleAsync(user, "admin"))
                     return RedirectToAction("Index", "Admin");
                 if (await _userManager.IsInRoleAsync(user, "teacher"))
-                    return RedirectToAction("Profile", "Account");
+                    return RedirectToAction("Index", "Teacher");
                 if (await _userManager.IsInRoleAsync(user, "schoolboy"))
                     return RedirectToAction("Profile", "Account");
             }

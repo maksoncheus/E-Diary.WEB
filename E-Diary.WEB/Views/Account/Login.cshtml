@@ -1,16 +1,40 @@
 ﻿@model E_Diary.WEB.Models.LoginModel
+<form class="min-vw-50 mw-25 position-absolute top-50 start-50 translate-middle m-auto text-center bg-secondary bg-opacity-10 rounded-3 p-4" asp-action="Login" asp-controller="Account" asp-anti-forgery="true">
+    <img src="~/src/images/logo.svg" alt="" width="72" height="72">
+    <div class="validation alert-danger" asp-validation-summary="All"></div>
+    <h1 class="h3 mb-3 fw-normal text-center">Авторизация</h1>
 
-<h2>Вход на сайт</h2>
+    <div class="form-group mb-2">
+        <label asp-for="Username">Эл. почта или имя пользователя</label>
+        <input type="email" asp-for="Username" class="form-control" placeholder="somemail@example.com">
+        <span asp-validation-for="Username" />
+    </div>
+    <div class="form-group mb-2">
+        <label asp-for="Password">Пароль</label>
+        <input asp-for="Password" class="form-control" placeholder="!Az@Qwerty123" />
+        <span asp-validation-for="Password" />
+    </div>
+    @if (ViewBag.Message != null)
+    {
+        <div class="form-group mb-2">
+            <p class="alert-danger">
+                @ViewBag.Message
+            </p>
+        </div>
+    }
+    <div class="form-group">
+        <button class="btn btn-secondary rounded-pill" type="submit">Войти</button>
+    </div>
+</form>
+@* <h2>Вход на сайт</h2>
 <form asp-action="Login" asp-controller="Account" asp-anti-forgery="true">
     <div class="validation alert-danger" asp-validation-summary="All"></div>
     <div>
         <div class="form-group">
             <input type="text" asp-for="Username" placeholder="Имя пользователя"/>
-            <span asp-validation-for="Username" />
         </div>
         <div class="form-group">
-            <input asp-for="Password" placeholder="Пароль" />
-            <span asp-validation-for="Password" />
+
         </div>
         <div class="form-group">
             <input type="submit" value="Войти" class="btn" />
@@ -24,4 +48,4 @@
             </div>
         }
     </div>
-</form>
+</form> *@

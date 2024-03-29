@@ -4,15 +4,17 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - E_Diary.WEB</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/E_Diary.WEB.styles.css" asp-append-version="true" />
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+<body class="d-flex flex-column min-vh-100 m-0">
+    <header class="p-3">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-secondary rounded-1 bg-opacity-25 border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">E_Diary.WEB</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                    <img src="~/src/images/logo.svg" alt="" width="72" height="72">
+                </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -26,15 +28,27 @@
             </div>
         </nav>
     </header>
-    <div class="container">
+    <div class="container-fluid p-4">
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2024 - E_Diary.WEB - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <footer class="border-top bg-secondary bg-opacity-25 footer text-muted mt-auto">
+        <div class="container-fluid px-3 d-flex align-content-start">
+            <div class="col-1">
+                <img src="~/src/images/logo.svg" alt="">
+            </div>
+            <div class="container d-flex flex-column col-4 text-wrap">
+               <p>Телефон: 8-800-555-3535</p>
+               <p>Эл. почта: schoolpro@mydomain.com</p>
+               <p>Адрес: г. Ишимбай, ул. Шишимбабая, д. 100500</p>
+            </div>
+            <div class="flex-grow-1">
+                <p>-----------------------------------------------</p>
+                <p>-----------------------</p>
+                <p>------------------------------------------------------------</p>
+            </div>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
