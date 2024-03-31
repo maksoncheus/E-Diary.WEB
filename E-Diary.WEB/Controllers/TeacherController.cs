@@ -12,9 +12,10 @@ namespace E_Diary.WEB.Controllers
             _context = context;
         }
         [Authorize(Roles ="teacher")]
-        public IActionResult Index()
+        public IActionResult Index(string? date)
         {
-            return View();
+            DateOnly dateOnly = date != null ? DateOnly.Parse(date) : DateOnly.FromDateTime(DateTime.Now);
+            return View(dateOnly);
         }
     }
 }

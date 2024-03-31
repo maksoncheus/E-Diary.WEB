@@ -1,64 +1,113 @@
-﻿@using E_Diary.WEB.Data.Entities
+﻿@model DateOnly
+@using E_Diary.WEB.Data.Entities
 @using System.Globalization
 @inject E_Diary.WEB.Data.ASPIdentityDBContext context;
+@{
+    DateOnly desiredDate = Model;// DateOnly.FromDateTime(DateTime.Today);
+    Teacher teacher = context.Teachers.FirstOrDefault(
+        t => t.User.UserName == User.Identity.Name
+    );
+}
+<nav class="mb-4">
+    <div class="border border-dark rounded-2">
+        <div class="container-fluid d-flex">
+            <div class="col-1 border-end border-dark" valign="middle" width="120px">
+                <h1 class="small fw-bold mt-4 mb-4">
+                    @{
+                        DateOnly today = DateOnly.FromDateTime(DateTime.Today);
+                    }
+                    @CultureInfo.CurrentCulture.TextInfo.ToTitleCase(CultureInfo.CurrentCulture
+                             .DateTimeFormat.DayNames[(int)today.DayOfWeek]),<br>@today.Day
+                    @CultureInfo.CurrentCulture.DateTimeFormat.MonthGenitiveNames[today.Month - 1]
+                </h1>
+            </div>
+            <div class="col-11 ms-2 mt-2" valign="middle">
+                <div class="selection selection-choose-classes">
+                    @foreach (TeacherGroupSubject tgs in context.TeacherGroupSubjects.AsEnumerable()
+                    .Where(t => t.Teacher.Id == teacher.Id).DistinctBy(t => t.Group.Id))
+                    {
+
+                        <a asp-controller="Journal" asp-action="Index" 
+                        asp-route-groupId="@tgs.Group.Id" 
+                        class="btn btn-outline-primary btn-outline-darkborder"
+                        data-toggle="button" aria-pressed="true" 
+                        autocomplete="off" role="button">
+                            @tgs.Group.Year@tgs.Group.Literal
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+</nav>
 <div class="w-33">
     <h3>
-        Расписание на сегодня
+        Расписание на <form class="form-check-inline" asp-action="Index">
+            <input type="date" name="date" value="@desiredDate.ToString("yyyy-MM-dd")" onchange="form.submit()" />
+        </form>
     </h3>
-    @{
-        DateOnly today = DateOnly.FromDateTime(DateTime.Today);
-        Teacher teacher = context.Teachers.FirstOrDefault(t => t.User.UserName == User.Identity.Name);
-    }
+
     <div class="p-4 border-1 border-bottom border-top border-start border-end border-secondary" id="schedule">
         <div class="schedule__day">
             <div class="schedule__day__content">
                 <div class="schedule__day__content__header ">
-                    <h5>@CultureInfo.CurrentCulture.TextInfo.ToTitleCase(CultureInfo.CurrentCulture.DateTimeFormat.DayNames[(int)today.DayOfWeek])</h5>
+                    <h5>
+                        @CultureInfo.CurrentCulture.TextInfo.ToTitleCase(CultureInfo
+                                 .CurrentCulture.DateTimeFormat.DayNames[(int)desiredDate.DayOfWeek])
+                    </h5>
                 </div>
                 <div class="schedule__day__content__column">
                     @* here starts daily content *@
                     @{
                         List<Lesson> todayLessons = context.Lessons
                         .Where(
-                        l => l.Date == today
+                        l => l.Date == desiredDate
                         && l.LessonInfo.Teacher.Id == teacher.Id).ToList();
                     }
-                    @for (int index = todayLessons.Min(l => l.LessonOnDayNumber);
-                    index <= todayLessons.Max(l => l.LessonOnDayNumber);
-                    index++)
+                    @if (todayLessons.Count > 0)
                     {
-                        string borderClass = index == todayLessons.Max(l => l.LessonOnDayNumber) ? "" : "border-bottom";
-                        List<Lesson> thisNumberLessons = todayLessons.Where(l => l.LessonOnDayNumber == index).ToList();
-                        if (thisNumberLessons.Count() != 0)
+                        @for (int index = todayLessons.Min(l => l.LessonOnDayNumber);
+                       index <= todayLessons.Max(l => l.LessonOnDayNumber);
+                       index++)
                         {
-                            <div class="schedule__day__content__lesson  schedule__day__content__lesson--main">
-                                @* <div class="schedule__day__content__lesson__time">
+                            string borderClass = index == todayLessons.Max(l => l.LessonOnDayNumber)
+                            ? ""
+                            : "border-bottom";
+                            List<Lesson> thisNumberLessons = todayLessons.Where(
+                            l => l.LessonOnDayNumber == index).ToList();
+                            if (thisNumberLessons.Count() != 0)
+                            {
+                                <div>
+                                    @* <div class="schedule__day__content__lesson__time">
                         12:30–14:00
                         </div> NOT IMPLEMENTED*@
-                                <div class="container-fluid d-flex @borderClass p-0">
-                                    <div class="container-fluid d-flex col-9 p-0">
-                                        <div class="col-2 text-center text-muted schedule__day__content__lesson__num">
-                                            @index
+                                    <div class="container-fluid d-flex @borderClass p-0 mb-3">
+                                        <div class="container-fluid d-flex col-9 p-0">
+                                            <div class="col-2 text-center text-muted schedule__day__content__lesson__num">
+                                                @index
+                                            </div>
+                                            <div class="col-10 container-fluid d-flex flex-column schedule__day__content__lesson__data">
+                                                @foreach (Lesson lesson in thisNumberLessons)
+                                                {
+                                                    <div>
+                                                        <a asp-controller="Journal" asp-action="Index"
+                                                        asp-route-groupId="@lesson.LessonInfo.Group.Id"
+                                                        asp-route-subjectId="@lesson.LessonInfo.Subject.Id">
+                                                            @lesson.LessonInfo.Group.Year@lesson.LessonInfo.Group.Literal
+                                                            @lesson.LessonInfo.Subject.Name
+                                                        </a>
+                                                    </div>
+                                                }
+                                            </div>
                                         </div>
-                                        <div class="col-10 container-fluid d-flex flex-column schedule__day__content__lesson__data">
-                                            @foreach (Lesson lesson in thisNumberLessons)
-                                            {
-                                                <div>
-                                                    @* PROVIDE VALID HREF TO JOURNAL *@
-                                                    <a href="">
-                                                        @lesson.LessonInfo.Group.Year@lesson.LessonInfo.Group.Literal 
-                                                        @lesson.LessonInfo.Subject.Name
-                                                    </a>
-                                                </div>
-                                            }
-                                        </div>
-                                    </div>
-                                    <div class="col-3">
-                                        <div class="schedule__day__content__lesson__room " title="">
+                                        <div class="col-3">
+                                            <div class="schedule__day__content__lesson__room " title="">
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            }
                         }
                     }
                 </div>
@@ -66,3 +115,17 @@
         </div>
     </div>
 </div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+
+        $('[name="date"]').attr('inputmode', 'none');
+        $('[name="date"]').on('keydown', (e) => {
+            e.preventDefault();
+            return false;
+        });
+    </script>
+}
+

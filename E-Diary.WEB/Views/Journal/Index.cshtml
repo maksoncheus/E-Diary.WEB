@@ -1,0 +1,86 @@
+﻿@model E_Diary.WEB.Data.Entities.TeacherGroupSubject
+@using E_Diary.WEB.Data.Entities
+@using System.Globalization
+@inject E_Diary.WEB.Data.ASPIdentityDBContext context;
+@{
+    Teacher teacher = context.Teachers.FirstOrDefault(
+        t => t.User.UserName == User.Identity.Name
+    );
+}
+<nav class="mb-4">
+    <div class="border border-dark rounded-2">
+        <div class="container-fluid d-flex">
+            <div class="col-1 border-end border-dark" valign="middle" width="120px">
+                <h1 class="small fw-bold mt-4 mb-4">
+                    @{
+                        DateOnly today = DateOnly.FromDateTime(DateTime.Today);
+                    }
+                    @CultureInfo.CurrentCulture.TextInfo.ToTitleCase(CultureInfo.CurrentCulture
+                             .DateTimeFormat.DayNames[(int)today.DayOfWeek]),<br>@today.Day
+                    @CultureInfo.CurrentCulture.DateTimeFormat.MonthGenitiveNames[today.Month - 1]
+                </h1>
+            </div>
+            <div class="col-6 ms-2 mt-2" valign="middle">
+                <div class="selection selection-choose-classes">
+                    @foreach (TeacherGroupSubject tgs in context.TeacherGroupSubjects.AsEnumerable()
+                    .Where(t => t.Teacher.Id == teacher.Id).DistinctBy(t => t.Group.Id))
+                    {
+                        if(tgs.Group.Id == Model.Group.Id)
+                        {
+                            <span class="btn btn-outline-primary btn-outline-darkborder active" 
+                            style="pointer-events:none" data-toggle="button" 
+                            aria-pressed="true" autocomplete="off" role="button">
+                                @tgs.Group.Year@tgs.Group.Literal
+                                </span>
+                        }
+                        else
+                        {
+                            <a asp-action="Index" asp-route-groupId="@tgs.Group.Id" 
+                            class="btn btn-outline-primary btn-outline-darkborder" 
+                            data-toggle="button" aria-pressed="false" 
+                            autocomplete="off" role="button">
+                                @tgs.Group.Year@tgs.Group.Literal
+                            </a>
+                        }
+                        @*PROVIDE HREF*@
+                    }
+                </div>
+            </div>
+            <div class="col-5 ms-2 mt-2" valign="middle">
+                <div class="selection selection-choose-classes">
+                    @foreach (TeacherGroupSubject tgs in context.TeacherGroupSubjects.AsEnumerable()
+                    .Where(t => t.Teacher.Id == teacher.Id && t.Group.Id == Model.Group.Id))
+                    {
+                        if (tgs.Subject.Id == Model.Subject.Id)
+                        {
+                            <span class="btn btn-outline-primary btn-outline-darkborder active" 
+                            style="pointer-events:none" data-toggle="button" 
+                            aria-pressed="true" autocomplete="off" role="button">
+                                @tgs.Subject.Name
+                            </span>
+                        }
+                        else
+                        {
+                            <a asp-action="Index" 
+                            asp-route-groupId="@Model.Group.Id" 
+                            asp-route-subjectId="@tgs.Subject.Id" 
+                            class="btn btn-outline-primary btn-outline-darkborder" 
+                            data-toggle="button" aria-pressed="false" 
+                            autocomplete="off" role="button">
+                                @tgs.Subject.Name
+                            </a>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+</nav>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+
