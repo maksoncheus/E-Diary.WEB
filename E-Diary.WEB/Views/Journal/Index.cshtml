@@ -11,38 +11,32 @@
     <div class="border border-dark rounded-2">
         <div class="container-fluid d-flex">
             <div class="col-1 border-end border-dark" valign="middle" width="120px">
-                <h1 class="small fw-bold mt-4 mb-4">
-                    @{
-                        DateOnly today = DateOnly.FromDateTime(DateTime.Today);
-                    }
-                    @CultureInfo.CurrentCulture.TextInfo.ToTitleCase(CultureInfo.CurrentCulture
-                             .DateTimeFormat.DayNames[(int)today.DayOfWeek]),<br>@today.Day
-                    @CultureInfo.CurrentCulture.DateTimeFormat.MonthGenitiveNames[today.Month - 1]
-                </h1>
+                <h3 class="fw-bold mt-4 mb-4 text-center">
+                    @Model.Group.Year@Model.Group.Literal
+                </h3>
             </div>
             <div class="col-6 ms-2 mt-2" valign="middle">
                 <div class="selection selection-choose-classes">
                     @foreach (TeacherGroupSubject tgs in context.TeacherGroupSubjects.AsEnumerable()
                     .Where(t => t.Teacher.Id == teacher.Id).DistinctBy(t => t.Group.Id))
                     {
-                        if(tgs.Group.Id == Model.Group.Id)
+                        if (tgs.Group.Id == Model.Group.Id)
                         {
-                            <span class="btn btn-outline-primary btn-outline-darkborder active" 
-                            style="pointer-events:none" data-toggle="button" 
-                            aria-pressed="true" autocomplete="off" role="button">
+                            <span class="btn btn-outline-primary btn-outline-darkborder active"
+                                  style="pointer-events:none" data-toggle="button"
+                                  aria-pressed="true" autocomplete="off" role="button">
                                 @tgs.Group.Year@tgs.Group.Literal
-                                </span>
+                            </span>
                         }
                         else
                         {
-                            <a asp-action="Index" asp-route-groupId="@tgs.Group.Id" 
-                            class="btn btn-outline-primary btn-outline-darkborder" 
-                            data-toggle="button" aria-pressed="false" 
-                            autocomplete="off" role="button">
+                            <a asp-action="Index" asp-route-groupId="@tgs.Group.Id"
+                               class="btn btn-outline-primary btn-outline-darkborder"
+                               data-toggle="button" aria-pressed="false"
+                               autocomplete="off" role="button">
                                 @tgs.Group.Year@tgs.Group.Literal
                             </a>
                         }
-                        @*PROVIDE HREF*@
                     }
                 </div>
             </div>
@@ -53,20 +47,20 @@
                     {
                         if (tgs.Subject.Id == Model.Subject.Id)
                         {
-                            <span class="btn btn-outline-primary btn-outline-darkborder active" 
-                            style="pointer-events:none" data-toggle="button" 
-                            aria-pressed="true" autocomplete="off" role="button">
+                            <span class="btn btn-outline-primary btn-outline-darkborder active"
+                                  style="pointer-events:none" data-toggle="button"
+                                  aria-pressed="true" autocomplete="off" role="button">
                                 @tgs.Subject.Name
                             </span>
                         }
                         else
                         {
-                            <a asp-action="Index" 
-                            asp-route-groupId="@Model.Group.Id" 
-                            asp-route-subjectId="@tgs.Subject.Id" 
-                            class="btn btn-outline-primary btn-outline-darkborder" 
-                            data-toggle="button" aria-pressed="false" 
-                            autocomplete="off" role="button">
+                            <a asp-action="Index"
+                               asp-route-groupId="@Model.Group.Id"
+                               asp-route-subjectId="@tgs.Subject.Id"
+                               class="btn btn-outline-primary btn-outline-darkborder"
+                               data-toggle="button" aria-pressed="false"
+                               autocomplete="off" role="button">
                                 @tgs.Subject.Name
                             </a>
                         }
@@ -75,8 +69,62 @@
             </div>
         </div>
     </div>
-
 </nav>
+
+
+<div class="container-fluid d-flex flex-column">
+    <div class="container-fluid d-flex">
+        <h2>@Model.Subject.Name</h2>
+    </div>
+    <div class="container-fluid d-flex flex-column">
+        <div class="container-fluid d-flex p-0 m-0 border-bottom border-dark">
+            @*header*@
+            <div class="col-2 flex-grow-1 border-end border-dark"></div>
+            <div class="col-10 container-fluid d-flex p-0 m-0 text-center">
+                @foreach (Lesson lesson in context.Lessons.Where(l => l.LessonInfo.Id == Model.Id))
+                {
+                    <div class="p-0 m-0 d-flex row row-cols-1 border-end border-secondary"
+                         style="width:2.5rem;">
+                        <div class="col p-0 m-0">@lesson.Date.Day</div>
+                        <div class="col p-0 m-0">
+                            @(
+                                new string(CultureInfo.CurrentCulture.DateTimeFormat
+                                .MonthGenitiveNames[lesson.Date.Month - 1].Take(3).ToArray())
+                            )
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="container-fluid p-0 m-0 d-flex flex-column">
+            @*body*@
+            @{
+                var students = context.Students.Where(s => s.Group.Id == Model.Group.Id).ToList();
+            }
+            @for (int i = 0; i < students.Count(); i++)
+            {
+                string borderClass = i == students.Count() - 1 ? "border-dark" : "border-secondary";
+
+                <div class="container-fluid p-0 m-0 d-flex col-12 border-bottom @borderClass" style="height:2.5rem;">
+                    <div class="col-2 container-fluid p-0 m-0 d-flex">
+                        <div class="text-muted ms-2 pe-1">@(i + 1)</div>
+                        <div class="flex-grow-1 border-end border-secondary">@students[i].User.Surname @students[i].User.Name</div>
+                    </div>
+                    <div class="col-10 container-fluid d-flex p-0 m-0 text-center">
+                        @foreach (Lesson lesson in context.Lessons.Where(l => l.LessonInfo.Id == Model.Id))
+                        {
+                            <div class="border-end border-secondary" style="width:2.5rem;">
+                                
+                            </div>
+                        }
+                    </div>
+
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
 
 @section Scripts {
     @{
