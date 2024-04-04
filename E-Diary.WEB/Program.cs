@@ -3,6 +3,8 @@ using E_Diary.WEB.Data.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
+using TransportationService.WEB.Configuration;
+using TransportationService.WEB.Services;
 
 namespace E_Diary.WEB
 {
@@ -11,19 +13,20 @@ namespace E_Diary.WEB
         public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-         //   builder.Services.AddAuthentication()
-         //.AddCookie(options =>
-         //{
-         //    options.LoginPath = "User/Authorize";
-         //    options.LogoutPath = "User/LogOut";
-         //});
+            //   builder.Services.AddAuthentication()
+            //.AddCookie(options =>
+            //{
+            //    options.LoginPath = "User/Authorize";
+            //    options.LogoutPath = "User/LogOut";
+            //});
             // Add services to the container.
             var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
             builder.Services.AddDbContext<ASPIdentityDBContext>(options =>
                 options.UseLazyLoadingProxies().UseSqlServer(connectionString));
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-            builder.Services.AddIdentity<User, IdentityRole>(options => { 
+            builder.Services.AddIdentity<User, IdentityRole>(options =>
+            {
                 options.User.RequireUniqueEmail = true;
                 options.Password.RequireDigit = true;
                 options.Password.RequireLowercase = true;
@@ -32,6 +35,11 @@ namespace E_Diary.WEB
                 options.Password.RequiredLength = 8;
             })
                 .AddEntityFrameworkStores<ASPIdentityDBContext>().AddDefaultTokenProviders();
+            var emailConfig = builder.Configuration
+            .GetSection("SMTP_Settings")
+            .Get<SMTPSettings>();
+            builder.Services.AddSingleton<SMTPSettings>(emailConfig);
+            builder.Services.AddSingleton<MailService>();
             builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
             var app = builder.Build();
 

@@ -44,6 +44,12 @@ namespace E_Diary.WEB.Controllers
         {
             return View();
         }
+
+        public IActionResult Message(string? msg)
+        {
+            return View(model: msg);
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

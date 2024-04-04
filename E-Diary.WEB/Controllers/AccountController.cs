@@ -5,19 +5,26 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using E_Diary.WEB.Helpers;
+using Microsoft.EntityFrameworkCore;
+using TransportationService.WEB.Services;
 
 namespace E_Diary.WEB.Controllers
 {
     public class AccountController : Controller
     {
-        private SignInManager<User> _signInManager;
-        private UserManager<User> _userManager;
-        private ASPIdentityDBContext _context;
-        public AccountController(ASPIdentityDBContext context, SignInManager<User> signInManager, UserManager<User> userManager)
+        private readonly SignInManager<User> _signInManager;
+        private readonly UserManager<User> _userManager;
+        private readonly ASPIdentityDBContext _context;
+        private readonly MailService _mailService;
+        public AccountController(ASPIdentityDBContext context,
+            SignInManager<User> signInManager,
+            UserManager<User> userManager,
+            MailService mailService)
         {
             _context = context;
             _signInManager = signInManager;
             _userManager = userManager;
+            _mailService = mailService;
         }
         [HttpGet]
         public IActionResult Login()
@@ -86,25 +93,59 @@ namespace E_Diary.WEB.Controllers
             return Json(PasswordGeneratorHelper.GenerateRandomPassword());
         }
         [HttpGet]
-        [Authorize(Roles = "admin")]
-        public async Task<IActionResult> GetResetPasswordLink(string email)
+        public IActionResult GetResetPasswordLink()
         {
-            User? user = await _userManager.FindByEmailAsync(email);
-            if (user != null)
-            {
-                string resetPasswordToken = await _userManager.GeneratePasswordResetTokenAsync(user);
-                return View((email, resetPasswordToken));
-            }
-            return NotFound();
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> GetResetPasswordLink(string? authString)
+        {
+            if (authString == null) return Forbid();
+            User? user = await _userManager.FindByEmailAsync(authString);
+            if (user == null)
+                user = await _userManager.Users.FirstOrDefaultAsync(u => u.PhoneNumber == authString);
+            if (user == null)
+                return NotFound();
+            string link = await GenerateResetPasswordLink(user);
+            _mailService.SendResetLink(link, user.Email);
+            string message = "На вашу почту было отправлено письмо с ссылкой для сброса пароля.";
+            return RedirectToAction("Message", "Home", new { msg = message });
+        }
+        private async Task<string> GenerateResetPasswordLink(User user)
+        {
+            string resetToken = await _userManager
+                 .GeneratePasswordResetTokenAsync(user);
+
+            string? confirmationLink = Url.Action("ResetPassword",
+              "Account", new
+              {
+                  userid = user.Id,
+                  token = resetToken
+              },
+              protocol: HttpContext.Request.Scheme);
+            if (confirmationLink == null) throw new ArgumentNullException(nameof(confirmationLink));
+            return confirmationLink;
+        }
+        [HttpGet]
+        public async Task<IActionResult> FindSuggestedUser(string? authString)
+        {
+            if (authString == null)
+                return BadRequest("Укажите почту!");
+            User? user = await _userManager.FindByEmailAsync(authString);
+            if (user == null)
+                user = await _userManager.Users.FirstOrDefaultAsync(u => u.PhoneNumber == authString);
+            if (user == null)
+                return BadRequest("Такого пользователя не найдено");
+            return Ok();
         }
         [HttpGet]
         [AllowAnonymous]
-        public async Task<IActionResult> ResetPassword(string email, string token)
+        public async Task<IActionResult> ResetPassword(string userId, string token)
         {
-            User? user = await _userManager.FindByEmailAsync(email);
+            User? user = await _userManager.FindByIdAsync(userId);
             if (user != null)
             {
-                ResetPasswordViewModel vm = new() { Email = email, Token = token };
+                ResetPasswordViewModel vm = new() { Id = userId, Token = token };
                 return View(vm);
             }
 
@@ -114,13 +155,15 @@ namespace E_Diary.WEB.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> ResetPassword(ResetPasswordViewModel vm)
         {
-            User? user = await _userManager.FindByEmailAsync(vm.Email);
+            User? user = await _userManager.FindByIdAsync(vm.Id);
             if (user != null)
             {
                 IdentityResult result = await _userManager.ResetPasswordAsync(user, vm.Token, vm.Password);
                 if (result.Succeeded)
                 {
-                    return RedirectToAction("Index", "Home");
+                    string message = "Вы успешно изменили пароль своей учетной записи." +
+                        " Теперь вы можете авторизоваться, используя новые данные";
+                    return RedirectToAction("Message", "Home", new { msg = message });
                 }
                 else
                 {
@@ -129,6 +172,7 @@ namespace E_Diary.WEB.Controllers
                         ModelState.AddModelError(string.Empty, error.Description);
                     }
                 }
+                return View(vm);
             }
             return RedirectToAction("Index", "Home");
         }
