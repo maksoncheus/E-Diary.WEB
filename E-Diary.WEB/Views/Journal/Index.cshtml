@@ -90,7 +90,7 @@
                             @(
                                 new string(CultureInfo.CurrentCulture.DateTimeFormat
                                 .MonthGenitiveNames[lesson.Date.Month - 1].Take(3).ToArray())
-                            )
+                                )
                         </div>
                     </div>
                 }
@@ -113,8 +113,38 @@
                     <div class="col-10 container-fluid d-flex p-0 m-0 text-center">
                         @foreach (Lesson lesson in context.Lessons.Where(l => l.LessonInfo.Id == Model.Id))
                         {
-                            <div class="border-end border-secondary" style="width:2.5rem;">
-                                
+                            <div class="grade border-end border-secondary position-relative" style="width:2.5rem;">
+                                <div class="bg-secondary p-2 mt-2" id="gradeFormDiv" style="display:none; width:7.5rem; z-index:100; position:absolute; left:-100%; top:95%;">
+                                    <form asp-action="SetGrade" asp-controller="Grade" class="m-0 p-0 container-fluid d-flex flex-wrap">
+                                        @for (int g = 1; g <= 5; g++)
+                                        {
+                                            <input type="radio" class="btn-check" name="grade" id="grade @g" value="@g" autocomplete="off" onclick="if(grade_val=='@g'){ this.checked = false; grade_val = '';}else{grade_val = '@g'};">
+                                            <label class="btn btn-secondary" for="grade @g">@g</label>
+                                        }
+                                        @*< div class="input-group mb-2">
+                                <input name="AuthString" type="tel" placeholder="Номер телефона" />
+                                </div>
+                                <div class="input-group mb-2">
+                                <input name="Password" type="password" placeholder="Пароль" />
+                                </div>
+                                <span id="errorLoginSpan" class="text-danger small text-center"></span>
+                                <div class="container">
+                                <div class="row mb-2">
+                                <div class="col-12 d-flex justify-content-center align-self-center">
+                                <button type="submit" id="authButton" class="btn bg-secondary bg-opacity-25">Войти</button>
+                                </div>
+                                </div>
+                                <div class="row d-flex">
+                                <div class="col-6 d-flex justify-content-start align-self-start p-0">
+                                <a asp-action="Register" asp-controller="Account" style="font-size:.77rem;">Регистрация</a>
+                                </div>
+                                <div class="col-6 d-flex justify-content-end align-self-end p-0">
+                                <a asp-action="GetResetPasswordLink" asp-controller="Account" style="font-size:.77rem;">Забыли пароль?</a>
+                                </div>
+                                </div>
+                                </div> *@
+                                    </form>
+                                </div>
                             </div>
                         }
                     </div>
@@ -130,5 +160,27 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+    <script>
+        let grade_val;
+        $(document).ready(() => {
+            
+            $('.grade').on('click', ShowChildGradeForm);
+        })
+        function HideChildGradeForm(e) {
+             if (e.target !== this)
+                 return;
+            $(this).children('#gradeFormDiv').eq(0).css('display', 'none');
+            $(this).on('click', ShowChildGradeForm);
+        }
+        function ShowChildGradeForm(e) {
+            //$('.grade').each(HideChildGradeForm);
+
+            $(this).children('#gradeFormDiv').css('display', 'block');
+            $(this).on('click', HideChildGradeForm);
+        }
+        // $(document).ready(() => {
+        //     var
+        // });
+    </script>
 }
 

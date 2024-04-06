@@ -16,6 +16,7 @@ namespace E_Diary.WEB.Data
         public DbSet<Lesson> Lessons { get; set; }
         public DbSet<TeacherGroupSubject> TeacherGroupSubjects { get; set; }
         public DbSet<Subject> Subjects { get; set; }
+        public DbSet<Grade> Grades { get; set; }
         public ASPIdentityDBContext(DbContextOptions<ASPIdentityDBContext> options)
             : base(options)
         {
