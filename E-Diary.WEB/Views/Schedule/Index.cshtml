@@ -19,13 +19,13 @@
 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
     <ul class="navbar-nav flex-grow-1 flex-row">
         <li class="me-2">
-            <a asp-area="" asp-action="Index" asp-route-date="@Model.StartOfWeek.AddDays(-7)">&lt;&lt;</a>
+            <a asp-area="" asp-action="Index" asp-route-groupId="@Model.GroupId" asp-route-date="@Model.StartOfWeek.AddDays(-7)">&lt;&lt;</a>
         </li>
         <li class="me-2">
             <p>@Model.StartOfWeek.Day @CultureInfo.CurrentCulture.DateTimeFormat.MonthGenitiveNames[Model.StartOfWeek.Month - 1] - @Model.EndOfWeek.Day @CultureInfo.CurrentCulture.DateTimeFormat.MonthGenitiveNames[Model.EndOfWeek.Month - 1]</p>
         </li>
         <li class="me-2">
-            <a asp-area="" asp-action="Index" asp-route-date="@Model.StartOfWeek.AddDays(7)">&gt;&gt;</a>
+            <a asp-area="" asp-action="Index" asp-route-groupId="@Model.GroupId" asp-route-date="@Model.StartOfWeek.AddDays(7)">&gt;&gt;</a>
         </li>
     </ul>
 </div>

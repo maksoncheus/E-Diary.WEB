@@ -1,7 +1,7 @@
 ﻿@model E_Diary.WEB.Data.Entities.TeacherGroupSubject
 @using E_Diary.WEB.Data.Entities
 @using System.Globalization
-@inject E_Diary.WEB.Data.ASPIdentityDBContext context;
+@inject E_Diary.WEB.Data.ASPIdentityDBContext context
 @{
     Teacher teacher = context.Teachers.FirstOrDefault(
         t => t.User.UserName == User.Identity.Name
@@ -80,7 +80,7 @@
         <div class="container-fluid d-flex p-0 m-0 border-bottom border-dark">
             @*header*@
             <div class="col-2 flex-grow-1 border-end border-dark"></div>
-            <div class="col-10 container-fluid d-flex p-0 m-0 text-center">
+            <div class="col-9 container-fluid d-flex p-0 m-0 text-center">
                 @foreach (Lesson lesson in context.Lessons.Where(l => l.LessonInfo.Id == Model.Id))
                 {
                     <div class="p-0 m-0 d-flex row row-cols-1 border-end border-secondary"
@@ -95,6 +95,7 @@
                     </div>
                 }
             </div>
+            <div class="col-1 text-danger border-1 border-start border-end border-bottom border-dark p-0 m-0 text-center">Средняя</div>
         </div>
         <div class="container-fluid p-0 m-0 d-flex flex-column">
             @*body*@
@@ -108,47 +109,131 @@
                 <div class="container-fluid p-0 m-0 d-flex col-12 border-bottom @borderClass" style="height:2.5rem;">
                     <div class="col-2 container-fluid p-0 m-0 d-flex">
                         <div class="text-muted ms-2 pe-1">@(i + 1)</div>
-                        <div class="flex-grow-1 border-end border-secondary">@students[i].User.Surname @students[i].User.Name</div>
+                        <div class="flex-grow-1 border-end border-secondary" style="overflow-wrap: break-word;">@students[i].User.Surname @students[i].User.Name</div>
                     </div>
-                    <div class="col-10 container-fluid d-flex p-0 m-0 text-center">
+                    <div class="col-9 container-fluid d-flex p-0 m-0 text-center">
                         @foreach (Lesson lesson in context.Lessons.Where(l => l.LessonInfo.Id == Model.Id))
                         {
-                            <div class="grade border-end border-secondary position-relative" style="width:2.5rem;">
-                                <div class="bg-secondary p-2 mt-2" id="gradeFormDiv" style="display:none; width:7.5rem; z-index:100; position:absolute; left:-100%; top:95%;">
-                                    <form asp-action="SetGrade" asp-controller="Grade" class="m-0 p-0 container-fluid d-flex flex-wrap">
-                                        @for (int g = 1; g <= 5; g++)
+                            <div class="grade border-end border-secondary position-relative" style="width:2.5rem; vertical-align:middle;">
+                                @{
+                                    Grade? grade = context.Grades.FirstOrDefault(g => g.Lesson.Id == lesson.Id && g.User.Id == students[i].User.Id);
+                                }
+                                @if (grade != null)
+                                {
+                                    <p class="text-center align-content-center w-100 h-100 m-0 p-0">@grade.Value</p>
+                                    @if (grade.IsMissed)
+                                    {
+                                        <p class="text-danger m-0" style="position:absolute; top:60%; left:5%; font-size:0.7rem;">Н</p>
+                                    }
+                                }
+                                <div class="bg-white p-2 mt-2 form-choice" id="gradeFormDiv" style="display:none; ">
+                                    @{
+                                        /*width:7.5rem; z-index:100; position:absolute; left:-100%; top:95%;*/
+                                    }
+                                    <form asp-action="SetGrade" class="mark_choice_items_grid">
+                                        <input type="hidden" name="studentId" value="@students[i].Id" />
+                                        <input type="hidden" name="lessonId" value="@lesson.Id" />
+                                        @for(int g = 5; g >= 1; g--)
                                         {
-                                            <input type="radio" class="btn-check" name="grade" id="grade @g" value="@g" autocomplete="off" onclick="if(grade_val=='@g'){ this.checked = false; grade_val = '';}else{grade_val = '@g'};">
-                                            <label class="btn btn-secondary" for="grade @g">@g</label>
+                                            @if (g == 5 || g == 1)
+                                            {
+                                                <div class="grade_cont">
+                                                    <input type="radio" disabled class="btn-check" name="grade" id="grade 0 @students[i].Id @lesson.Id" value="0" autocomplete="off">
+                                                    <label class="btn btn-white grade_badge m-0 p-0" for="grade 0 @students[i].Id @lesson.Id">&nbsp;</label>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="grade_cont">
+                                                    @if(grade != null && grade.Value == string.Concat(g.ToString(), "+"))
+                                                    {
+                                                        <input type="radio" class="btn-check" checked name="grade" id="grade @g+ @students[i].Id @lesson.Id" value="@g+" autocomplete="off">
+                                                    }
+                                                    else
+                                                    {
+                                                        <input type="radio" class="btn-check" name="grade" id="grade @g+ @students[i].Id @lesson.Id" value="@g+" autocomplete="off">
+                                                    }
+                                                    <label class="btn btn-secondary border-1 border rounded-1 grade_badge m-0 p-0" for="grade @g+ @students[i].Id @lesson.Id">@g+</label>
+                                                </div>
+                                            }
+                                            <div class="grade_cont">
+                                                @if (grade != null && grade.Value == g.ToString())
+                                                {
+                                                    <input type="radio" class="btn-check" checked name="grade" id="grade @g @students[i].Id @lesson.Id" value="@g" autocomplete="off">
+                                                }
+                                                else
+                                                {
+                                                    <input type="radio" class="btn-check" name="grade" id="grade @g @students[i].Id @lesson.Id" value="@g" autocomplete="off">
+                                                }
+                                                <label class="btn btn-secondary border-1 border rounded-1 grade_badge m-0 p-0" for="grade @g @students[i].Id @lesson.Id">@g</label>
+                                            </div>
+                                            @if (g != 1)
+                                            {
+                                                <div class="grade_cont">
+                                                @if (grade != null && grade.Value == string.Concat(g.ToString(), "-"))
+                                                {
+                                                    <input type="radio" checked class="btn-check" name="grade" id="grade @g- @students[i].Id @lesson.Id" value="@g-" autocomplete="off">
+                                                }
+                                                else
+                                                {
+                                                    <input type="radio" class="btn-check" name="grade" id="grade @g- @students[i].Id @lesson.Id" value="@g-" autocomplete="off">
+                                                }
+                                                    <label class="btn btn-secondary border-1 border rounded-1 grade_badge m-0 p-0" for="grade @g- @students[i].Id @lesson.Id">@g-</label>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="grade_cont">
+                                                    <input type="radio" disabled class="btn-check" name="grade" id="grade 0 @students[i].Id @lesson.Id" value="0" autocomplete="off">
+                                                    <label class="btn btn-white grade_badge m-0 p-0" for="grade 0 @students[i].Id @lesson.Id">&nbsp;</label>
+                                                </div>
+                                            }
                                         }
-                                        @*< div class="input-group mb-2">
-                                <input name="AuthString" type="tel" placeholder="Номер телефона" />
-                                </div>
-                                <div class="input-group mb-2">
-                                <input name="Password" type="password" placeholder="Пароль" />
-                                </div>
-                                <span id="errorLoginSpan" class="text-danger small text-center"></span>
-                                <div class="container">
-                                <div class="row mb-2">
-                                <div class="col-12 d-flex justify-content-center align-self-center">
-                                <button type="submit" id="authButton" class="btn bg-secondary bg-opacity-25">Войти</button>
-                                </div>
-                                </div>
-                                <div class="row d-flex">
-                                <div class="col-6 d-flex justify-content-start align-self-start p-0">
-                                <a asp-action="Register" asp-controller="Account" style="font-size:.77rem;">Регистрация</a>
-                                </div>
-                                <div class="col-6 d-flex justify-content-end align-self-end p-0">
-                                <a asp-action="GetResetPasswordLink" asp-controller="Account" style="font-size:.77rem;">Забыли пароль?</a>
-                                </div>
-                                </div>
-                                </div> *@
+
+                                        <div class="d-flex flex-row">
+                                            @if(grade != null && grade.IsMissed == true)
+                                            {
+                                                <input class="form-check-inline flex-grow-1 myCheck" checked type="checkbox" value="True" name="isMissed" id="isMissed @students[i].Id @lesson.Id" />
+                                            }
+                                            else
+                                            {
+                                                <input class="form-check-inline flex-grow-1 myCheck" type="checkbox" value="True" name="isMissed" id="isMissed @students[i].Id @lesson.Id" />
+                                            }
+                                            <label class="flex-grow-1 form-check-label text-black" for="isMissed @students[i].Id @lesson.Id">Неявка</label>
+
+                                        </div>
+                                        <div class="d-grid gap-2 w-100">
+                                            <input type="submit" class="btn-success btn" value="Ок" />
+                                        </div>
+                                    </form>
+                                    <form asp-action="RemoveGrade" class="mt-1">
+                                        <input type="hidden" name="studentId" value="@students[i].Id" />
+                                        <input type="hidden" name="lessonId" value="@lesson.Id" />
+                                        <div class="w-100 d-flex flex-row-reverse">
+                                            <input type="submit" class="btn-outline-danger btn btn-sm p-1" value="Очистить" />
+                                        </div>
                                     </form>
                                 </div>
                             </div>
                         }
                     </div>
-
+                    <div class="col-1 border-start border-1 border-dark text-center" style="width:2.5rem; vertical-align:middle;">
+                        @{
+                            int sum = 0;
+                            int count = 0;
+                            string res = string.Empty;
+                            foreach(Grade g in context.Grades.Where(g => g.User.Id == students[i].User.Id && g.Lesson.LessonInfo.Group.Id == Model.Group.Id))
+                            {
+                                if(g.Value != null && g.Value != string.Empty)
+                                {
+                                    sum += Convert.ToInt32(g.Value.First().ToString()); count++;
+                                }
+                            }
+                            if(count != 0)
+                                res = Math.Round((double)sum / (double)count, 2).ToString();
+                        }
+                        <p class="text-center w-100">@res</p>
+                        </div>
                 </div>
             }
         </div>
@@ -162,25 +247,37 @@
     }
     <script>
         let grade_val;
+        var last_selected;
         $(document).ready(() => {
-            
+
             $('.grade').on('click', ShowChildGradeForm);
+            $('.myCheck').on('click', (e) => {
+                e.stopPropagation();
+                if (this.checked == true)
+                    this.checked = false;
+                else
+                    this.checked = true;
+            });
         })
         function HideChildGradeForm(e) {
-             if (e.target !== this)
-                 return;
+            // if (e.target !== this)
+            //     return;
             $(this).children('#gradeFormDiv').eq(0).css('display', 'none');
             $(this).on('click', ShowChildGradeForm);
         }
         function ShowChildGradeForm(e) {
-            //$('.grade').each(HideChildGradeForm);
-
+            e.stopPropagation();
             $(this).children('#gradeFormDiv').css('display', 'block');
-            $(this).on('click', HideChildGradeForm);
+            if (last_selected) {
+                last_selected.css('display', 'none');
+                if (last_selected.is($(this).children('#gradeFormDiv')))
+                    last_selected = null;
+                else
+                    last_selected = $(this).children('#gradeFormDiv');
+            }
+            else
+                last_selected = $(this).children('#gradeFormDiv');
         }
-        // $(document).ready(() => {
-        //     var
-        // });
     </script>
 }
 

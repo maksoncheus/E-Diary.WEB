@@ -1,0 +1,47 @@
+﻿.form-choice {
+    position: absolute;
+    display: none;
+    width: 130px;
+    background: #FFFFFF;
+    box-shadow: 0px 16px 15px rgba(17, 16, 60, 0.1);
+    border-radius: 3px;
+    padding: 11px;
+    top: 85%;
+    left: -42px;
+    z-index: 2;
+    cursor: default;
+
+    &.form-choice-attendance {
+        width: 58px;
+        left: -5px;
+    }
+
+    .mark_choice_items {
+        .badge {
+            margin: 4px 4px;
+            width: 28px;
+            cursor: pointer;
+            text-transform: capitalize;
+        }
+
+        &.mark_choice_items_grid {
+            display: flex;
+            flex-wrap: wrap;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+        }
+
+        &.mark_choice_items_column {
+            display: flex;
+            flex-wrap: nowrap;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        &.mark_choice_items_wide {
+            .badge {
+                width: 100%;
+            }
+        }
+    }
+}

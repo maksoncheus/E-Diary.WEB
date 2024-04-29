@@ -2,6 +2,7 @@
 using E_Diary.WEB.Data.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 
 namespace E_Diary.WEB.Controllers
@@ -38,6 +39,58 @@ namespace E_Diary.WEB.Controllers
             if(tgs == null)
                 return NotFound();
             return View(tgs);
+        }
+        [HttpPost]
+        public async Task<IActionResult> RemoveGrade(int studentId, long lessonId)
+        {
+            Lesson? lesson = await _context.Lessons.FindAsync(lessonId);
+            Student? student = await _context.Students.FindAsync(studentId);
+            Grade? grade = await _context.Grades.FirstOrDefaultAsync(g => g.Lesson.Id == lesson.Id && g.User.Id == student.User.Id);
+            if (grade != null)
+            {
+                _context.Grades.Remove(grade);
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction("Index", new { groupId = lesson.LessonInfo.Group.Id, subjectId = lesson.LessonInfo.Subject.Id });
+
+        }
+        [HttpPost]
+        public async Task<IActionResult> SetGrade(int studentId, long lessonId)
+        {
+            bool needToChange = false;
+            Lesson? lesson = await _context.Lessons.FindAsync(lessonId);
+            Student? student = await _context.Students.FindAsync(studentId);
+            if (student == null)
+            {
+                return NotFound();
+            }
+            if (lesson == null) return NotFound();
+            var form = HttpContext.Request.Form;
+            string? grade = form["grade"];
+            Grade? newGrade = await _context.Grades.FirstOrDefaultAsync(g => g.Lesson.Id == lesson.Id && g.User.Id == student.User.Id);
+            if (newGrade == null)
+                newGrade = new();
+            else needToChange = true;
+            if (grade == null)
+            {
+                newGrade.Value = null;
+            }
+            else
+                newGrade.Value = grade;
+            bool isMissed = Convert.ToBoolean(form["isMissed"]);
+            newGrade.IsMissed = isMissed;
+            if(needToChange)
+            {
+                _context.Entry(newGrade).State = EntityState.Modified;
+            }
+            else
+            {
+                newGrade.Lesson = lesson;
+                newGrade.User = student.User;
+                _context.Grades.Add(newGrade);
+            }
+            await _context.SaveChangesAsync();
+            return RedirectToAction("Index", new { groupId = lesson.LessonInfo.Group.Id, subjectId = lesson.LessonInfo.Subject.Id});
         }
     }
 }
