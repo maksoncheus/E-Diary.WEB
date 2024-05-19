@@ -1,0 +1,484 @@
+﻿@model GradesViewModel
+@using E_Diary.WEB.Areas.Teacher.Models
+@using E_Diary.WEB.Data.Entities
+@using System.Globalization
+@inject E_Diary.WEB.Data.ASPIdentityDBContext context
+@{
+    TeacherGroupSubject teacherGroupSubject = await context.TeacherGroupSubjects.FindAsync(Model.TeacherGroupSubjectId);
+    CertificationPeriod period = await context.CertificationPeriods.FindAsync(Model.CertificationPeriodId);
+    Teacher teacher = context.Teachers.FirstOrDefault(
+        t => t.User.UserName == User.Identity.Name
+    );
+    IEnumerable<Lesson> Lessons = context.Lessons.Where(l => l.LessonInfo.Id == teacherGroupSubject.Id && l.Date >= period.Start && l.Date <= period.End).OrderBy(l => l.Date).ThenBy(l => l.LessonOnDayNumber);
+    List<CertificationPeriod> possiblePeriods = new();
+    if(period != null)
+        possiblePeriods = context.CertificationPeriods.Where(p => p.StudyYear == period.StudyYear).OrderBy(p => p.End).ToList();
+}
+<nav class="mb-4">
+    <div class="border border-dark rounded-2">
+        <div class="container-fluid d-flex">
+            <div class="col-1 border-end border-dark" valign="middle" width="120px">
+                <h3 class="fw-bold mt-4 mb-4 text-center">
+                    @teacherGroupSubject.Group.Year@teacherGroupSubject.Group.Literal
+                </h3>
+            </div>
+            <div class="col-6 ms-2 mt-2" valign="middle">
+                <div class="selection selection-choose-classes">
+                    @foreach (TeacherGroupSubject tgs in context.TeacherGroupSubjects.AsEnumerable()
+                    .Where(t => t.Teacher.Id == teacher.Id).DistinctBy(t => t.Group.Id))
+                    {
+                        if (tgs.Group.Id == teacherGroupSubject.Group.Id)
+                        {
+                            <span class="btn btn-outline-primary btn-outline-darkborder active"
+                                  style="pointer-events:none" data-toggle="button"
+                                  aria-pressed="true" autocomplete="off" role="button">
+                                @tgs.Group.Year@tgs.Group.Literal
+                            </span>
+                        }
+                        else
+                        {
+                            <a asp-action="Grades" asp-route-groupId="@tgs.Group.Id"
+                               asp-route-periodId="@(period?.Id ?? -1)"
+                               class="btn btn-outline-primary btn-outline-darkborder"
+                               data-toggle="button" aria-pressed="false"
+                               autocomplete="off" role="button">
+                                @tgs.Group.Year@tgs.Group.Literal
+                            </a>
+                        }
+                    }
+                </div>
+            </div>
+            <div class="col-5 ms-2 mt-2" valign="middle">
+                <div class="selection selection-choose-classes">
+                    @foreach (TeacherGroupSubject tgs in context.TeacherGroupSubjects.AsEnumerable()
+                    .Where(t => t.Teacher.Id == teacher.Id && t.Group.Id == teacherGroupSubject.Group.Id))
+                    {
+                        if (tgs.Subject.Id == teacherGroupSubject.Subject.Id)
+                        {
+                            <span class="btn btn-outline-primary btn-outline-darkborder active"
+                                  style="pointer-events:none" data-toggle="button"
+                                  aria-pressed="true" autocomplete="off" role="button">
+                                @tgs.Subject.Name
+                            </span>
+                        }
+                        else
+                        {
+                            <a asp-action="Grades"
+                               asp-route-groupId="@teacherGroupSubject.Group.Id"
+                               asp-route-subjectId="@tgs.Subject.Id" asp-route-periodId="@(period?.Id ?? -1)"
+                               class="btn btn-outline-primary btn-outline-darkborder"
+                               data-toggle="button" aria-pressed="false"
+                               autocomplete="off" role="button">
+                                @tgs.Subject.Name
+                            </a>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+@if(period != null)
+{
+    string prevClass = possiblePeriods.IndexOf(period) > 0 ? string.Empty : "disabled";
+    string nextClass = possiblePeriods.IndexOf(period) < possiblePeriods.Count() - 1 ? string.Empty : "disabled";
+    <ul class="navbar-nav flex-grow-1 flex-row justify-content-end">
+        <li class="me-2">
+            <a asp-action="Grades" class="btn btn-link @prevClass" asp-route-groupId="@teacherGroupSubject.Group.Id"
+               asp-route-subjectId="@teacherGroupSubject.Subject.Id" asp-route-periodId="@(prevClass == string.Empty ? possiblePeriods[possiblePeriods.IndexOf(period) - 1].Id : -1)">&lt;&lt;</a>
+        </li>
+        <li class="me-2">
+            <p>@period?.Name</p>
+        </li>
+        <li class="me-2">
+            <a asp-action="Grades" class="btn btn-link @nextClass" asp-route-groupId="@teacherGroupSubject.Group.Id"
+               asp-route-subjectId="@teacherGroupSubject.Subject.Id" asp-route-periodId="@(nextClass == string.Empty ? possiblePeriods[possiblePeriods.IndexOf(period) + 1].Id : -1)">&gt;&gt;</a>
+        </li>
+    </ul>
+    }
+<div class="journal-page">
+    <div class="content">
+
+        <div id="journal-content" class="">
+
+            <div class="block-table mt-4">
+
+                @{
+                    string width = (Lessons.Count() * 75).ToString() + "px";
+                }
+                <div class="block-table-inner dragscroll" id="dragscroll">
+                    <table class="table table-nsu table-journal" style="width: @width">
+                        <thead style="width: @width;">
+                            <tr>
+                                <th class="user journal-first-header" style="left: 0px;">@teacherGroupSubject.Subject.Name</th>
+                                @foreach (Lesson lesson in Lessons)
+                                {
+                                    <th class="statement-column journal-first-header attendance mine date-passed" style="height:50px;">
+                                        <span>
+                                            <div class="p-0 m-0 d-flex row row-cols-1">
+                                                <div class="col p-0 m-0">@lesson.Date.Day</div>
+                                                <div class="col p-0 m-0">
+                                                    @(
+                                                        new string(CultureInfo.CurrentCulture.DateTimeFormat
+                                                        .MonthGenitiveNames[lesson.Date.Month - 1].Take(3).ToArray())
+                                                        )
+                                                </div>
+                                            </div>
+                                        </span>
+                                    </th>
+                                }
+                                <th class="avg journal-first-header">Средняя</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var students = context.Students.Where(s => s.Group.Id == teacherGroupSubject.Group.Id).ToList();
+                            }
+                            @for (int i = 0; i < students.Count(); i++)
+                            {
+                                <tr>
+                                    <td class="user">
+                                        <span class="user-num">@(i + 1)</span>
+                                        <a target="_blank" href="/">
+                                            <span class="d-none d-sm-block user-fullname">@students[i].User.Surname @students[i].User.Name @students[i].User.Patronymic</span>
+                                            <span class="d-block d-sm-none user-shortname">@students[i].User.Surname @(students[i].User.Name.First()). @(students[i].User.Patronymic?.First()).</span>
+                                        </a>
+                                    </td>
+                                    @if(period != null)
+                                    {
+                                        @foreach (Lesson lesson in Lessons)
+                                        {
+                                            Grade? grade = context.Grades.FirstOrDefault(g => g.Lesson.Id == lesson.Id && g.User.Id == students[i].User.Id);
+                                            string dataGrade = grade?.Value ?? "none";
+                                            string dataMissed = "false";
+                                            if (grade != null)
+                                                dataMissed = grade.IsMissed ? "true" : "false";
+                                            <td class="td-data can-edit mine grade" data-grade="@dataGrade" data-missed="@dataMissed" data-lesson="@lesson.Id" data-student="@students[i].Id" data-group="@teacherGroupSubject.Group.Id" data-subject="@teacherGroupSubject.Subject.Id">
+                                                <div class="mark-content">
+                                                    <span class="badge badge-grey">@grade?.Value</span>
+                                                    <p class="text-danger m-0 badge-missed" style="position:absolute; top:70%; left:5%; font-size:0.7rem;">
+                                                        @((grade != null && grade.IsMissed) ? "Н" : "")
+                                                    </p>
+                                                </div>
+
+                                                <div class="bg-white p-2 mt-2 form-choice" style="display:none; ">
+                                                </div>
+                                            </td>
+                                        }
+                                    }
+                                    
+                                    <td class="avg">
+                                        <div class="mark-content">
+                                            @{
+                                                int sum = 0;
+                                                int count = 0;
+                                                string res = string.Empty;
+                                                if (period != null)
+                                                {
+                                                    foreach (Grade g in context.Grades.Where(g =>
+                                                        g.User.Id == students[i].User.Id
+                                                        && g.Lesson.LessonInfo.Group.Id == teacherGroupSubject.Group.Id
+                                                        && g.Lesson.LessonInfo.Subject.Id == teacherGroupSubject.Subject.Id
+                                                        && (g.Lesson.Date >= period.Start && g.Lesson.Date <= period.End)
+                                                    )
+                                                    )
+                                                    {
+                                                        if (g.Value != null && g.Value != string.Empty)
+                                                        {
+                                                            sum += Convert.ToInt32(g.Value.First().ToString()); count++;
+                                                        }
+                                                    }
+                                                    if (count != 0)
+                                                        res = Math.Round((double)sum / (double)count, 2).ToString();
+                                                }
+                                            }
+                                            <span class="badge badge-grey">@res</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mark_choice_content" id="mark-choice-grade" style="display: none">
+        <form asp-action="SetGrade" class="mark_choice_items_grid">
+            <div class="grade_cont">
+                <label class="grade_badge m-0 p-0 pe-none"></label>
+            </div>
+            <div class="grade_cont">
+                <input type="radio" class="btn-check" name="grade" id="grade5" value="5" autocomplete="off">
+                <label class="btn btn-mark border-1 border rounded-1 grade_badge m-0 p-0" for="grade5">5</label>
+            </div>
+            <div class="grade_cont">
+                <input type="radio" class="btn-check" name="grade" id="grade5-" value="5-" autocomplete="off">
+                <label class="btn btn-mark border-1 border rounded-1 grade_badge m-0 p-0" for="grade5-">5-</label>
+            </div>
+
+            <div class="grade_cont">
+                <input type="radio" class="btn-check" name="grade" id="grade4+" value="4+" autocomplete="off">
+                <label class="btn btn-mark border-1 border rounded-1 grade_badge m-0 p-0" for="grade4+">4+</label>
+            </div>
+            <div class="grade_cont">
+                <input type="radio" class="btn-check" name="grade" id="grade4" value="4" autocomplete="off">
+                <label class="btn btn-mark border-1 border rounded-1 grade_badge m-0 p-0" for="grade4">4</label>
+            </div>
+            <div class="grade_cont">
+                <input type="radio" class="btn-check" name="grade" id="grade4-" value="4-" autocomplete="off">
+                <label class="btn btn-mark border-1 border rounded-1 grade_badge m-0 p-0" for="grade4-">4-</label>
+            </div>
+
+            <div class="grade_cont">
+                <input type="radio" class="btn-check" name="grade" id="grade3+" value="3+" autocomplete="off">
+                <label class="btn btn-mark border-1 border rounded-1 grade_badge m-0 p-0" for="grade3+">3+</label>
+            </div>
+            <div class="grade_cont">
+                <input type="radio" class="btn-check" name="grade" id="grade3" value="3" autocomplete="off">
+                <label class="btn btn-mark border-1 border rounded-1 grade_badge m-0 p-0" for="grade3">3</label>
+            </div>
+            <div class="grade_cont">
+                <input type="radio" class="btn-check" name="grade" id="grade3-" value="3-" autocomplete="off">
+                <label class="btn btn-mark border-1 border rounded-1 grade_badge m-0 p-0" for="grade3-">3-</label>
+            </div>
+
+            <div class="grade_cont">
+                <input type="radio" class="btn-check" name="grade" id="grade2+" value="2+" autocomplete="off">
+                <label class="btn btn-mark border-1 border rounded-1 grade_badge m-0 p-0" for="grade2+">2+</label>
+            </div>
+            <div class="grade_cont">
+                <input type="radio" class="btn-check" name="grade" id="grade2" value="2" autocomplete="off">
+                <label class="btn btn-mark border-1 border rounded-1 grade_badge m-0 p-0" for="grade2">2</label>
+            </div>
+            <div class="grade_cont">
+                <input type="radio" class="btn-check" name="grade" id="grade2-" value="2-" autocomplete="off">
+                <label class="btn btn-mark border-1 border rounded-1 grade_badge m-0 p-0" for="grade2-">2-</label>
+            </div>
+
+            <div class="grade_cont">
+                <label class="grade_badge m-0 p-0 pe-none"></label>
+            </div>
+            <div class="grade_cont">
+                <input type="radio" class="btn-check" name="grade" id="grade1" value="1" autocomplete="off">
+                <label class="btn btn-mark border-1 border rounded-1 grade_badge m-0 p-0" for="grade1">1</label>
+            </div>
+            <div class="grade_cont">
+                <label class="grade_badge m-0 p-0 pe-none"></label>
+            </div>
+
+            <div class="d-flex flex-row">
+                    <input class="form-check-inline flex-grow-1" type="checkbox" name="isMissed" id="isMissed" />
+                <label class="flex-grow-1 form-check-label text-black" for="isMissed">Неявка</label>
+
+            </div>
+            
+            <div class="d-grid gap-2 w-100">
+                <input type="button" class="btn-success btn" value="Ок" />
+            </div>
+        </form>
+        <form class="mt-1">
+            <div class="w-100 d-flex flex-row-reverse">
+                <input type="button" class="btn-outline-danger btn btn-sm p-1" value="Очистить" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        let journalContent = $('#journal-content'),
+            journalBlock = journalContent.find('.block-table'),
+            journalInner = journalContent.find('.block-table-inner'),
+            journalTable = journalContent.find('table.table-journal'),
+            journalTableHeader = journalTable.find('thead'),
+            targetMarkTD = null;
+        $('body').on('click', function (e) {
+            let _target = $(e.target);
+            if (null !== targetMarkTD && targetMarkTD.has(e.target).length === 0) {
+                hideFormsChoice(targetMarkTD);
+            }
+            if (!_target.hasClass('icon-menu') && !_target.hasClass('statement-btn-menu')) {
+                hideMenu();
+            }
+        });
+        journalTable.on('mouseup', '.td-data.can-edit .mark-content', function (e) {
+            _this = $(this),
+                td = _this.closest('td'),
+                grading = td.data('grading'),
+                form = td.find('.form-choice'),
+                content = $("#mark-choice-grade").html();
+
+            // если мышь сдвинута более, чем на 5 пикселей, то не открываем окно выбора оценки
+
+            targetMarkTD = td;
+            if ($(form).children().length === 0) {
+                hideFormsChoice();
+                td.find('.badge').addClass('badge-input');
+                form.html(content);
+                if (!td.hasClass('attestation')) {
+                    // удаляем отметку "не аттестован" для неаттестационных ведомостей
+                    form.find('.statement-mark-na').remove();
+                }
+                loadGradesAndIsMissed(form);
+                form.show();
+
+                let block = journalInner,
+                    blockOffset = block.offset(),
+                    blockWidth = block[0].clientWidth,
+                    blockHeight = block[0].clientHeight,
+                    formOffset = form.offset(),
+                    formWidth = form[0].clientWidth,
+                    formHeight = form[0].clientHeight,
+                    defaultLeft = parseInt(form.css('left')),
+                    defaultTop = parseInt(form.css('top'));
+
+                if (blockOffset.left > formOffset.left) {
+                    // не вмещается слева
+                    form.css('left', defaultLeft + blockOffset.left - formOffset.left);
+                }
+                if (blockOffset.left + blockWidth < formOffset.left + formWidth) {
+                    // не вмещается справа
+                    form.css('left', defaultLeft - ((formOffset.left + formWidth) - (blockOffset.left + blockWidth)) - 1);
+                }
+                if (blockOffset.top + blockHeight < formOffset.top + formHeight) {
+                    // не вмещается снизу
+                    form.css('top', defaultTop - ((formOffset.top + formHeight) - (blockOffset.top + blockHeight)) - 1);
+                }
+            }
+        });
+        journalTable.on('click', '.form-choice .btn-success', function (e) {
+            let _this = $(this),
+                td = _this.closest('td'),
+                form = _this.closest('.form-choice');
+
+            $.ajax({
+                url: '/Teacher/Journal/SetGrade',
+                type: 'post',
+                dataType: 'html',
+                data: {
+                    studentId: td.data('student'),
+                    lessonId: td.data('lesson'),
+                    isMissed: $(form).find('input:checkbox:checked').prop('checked'),
+                    grade: $(form).find('input:radio:checked').val()
+                },
+                success: function (response) {
+                    td.find('.mark-content').html(response);
+                    td.data('grade', td.find('.badge').html().length > 0 ? td.find('.badge').html() : 'none');
+                    td.data('missed', td.find('.badge-missed').html().length > 0 ? 'true' : 'false');
+
+                    $.ajax({
+                        url: '/Teacher/Journal/GetAverage',
+                        type: 'get',
+                        dataType: 'html',
+                        data: {
+                            studentId: td.data('student'),
+                            groupId: td.data('group'),
+                            subjectId: td.data('subject'),
+                            period: @Model.CertificationPeriodId
+                        },
+                        success: function (response) {
+                            td.parent().children('.avg').find('.badge').html(response);
+                        },
+                        error: function (response) {
+                        }
+                    });
+
+                    hideFormsChoice();
+                },
+                error: function (response) {
+                }
+            });
+        });
+        journalTable.on('click', '.form-choice .btn-outline-danger', function (e) {
+            let _this = $(this),
+                td = _this.closest('td'),
+                form = _this.closest('.form-choice');
+
+            $.ajax({
+                url: '/Teacher/Journal/RemoveGrade',
+                type: 'post',
+                dataType: 'html',
+                data: {
+                    studentId: td.data('student'),
+                    lessonId: td.data('lesson')
+                },
+                success: function (response) {
+                    td.find('.mark-content').html(response);
+                    td.data('grade', 'none');
+                    td.data('missed', 'false');
+
+                    $.ajax({
+                        url: '/Teacher/Journal/GetAverage',
+                        type: 'get',
+                        dataType: 'html',
+                        data: {
+                            studentId: td.data('student'),
+                            groupId: td.data('group'),
+                            subjectId: td.data('subject'),
+                            period: @Model.CertificationPeriodId
+                        },
+                        success: function (response) {
+                            td.parent().children('.avg').find('.badge').html(response);
+                        },
+                        error: function (response) {
+                        }
+                    });
+
+                    hideFormsChoice();
+                },
+                error: function (response) {
+                }
+            });
+        });
+
+
+        
+        let objDiv = document.getElementById("dragscroll");
+        objDiv.scrollLeft = objDiv.scrollWidth;
+        let grade_val;
+        var last_selected;
+        $(document).ready(() => {
+
+            //$('.grade').on('click', ShowChildGradeForm);
+            $('.myCheck').on('click', (e) => {
+                e.stopPropagation();
+                if (this.checked == true)
+                    this.checked = false;
+                else
+                    this.checked = true;
+            });
+        })
+        function hideFormsChoice(context) {
+            if (undefined === context) {
+                context = journalContent;
+            }
+            $(context).find('.form-choice').children().remove();
+            $(context).find('.form-choice').removeAttr('style').hide();
+            $(context).find('.badge-input').removeClass('badge-input');
+            //targetMarkTD = null;
+        }
+
+        function hideMenu(context) {
+            if (undefined === context) {
+                context = journalContent;
+            }
+            $(context).find('.statement-menu').removeAttr('style').hide();
+        }
+        function loadGradesAndIsMissed(context) {
+            if (undefined === context) return;
+            td = $(context).closest('td');
+            if (td.data('grade') != "none")
+            {
+                $(context).find('[name=grade][value="' + td.data('grade') + '"]').prop('checked', true);
+            }
+            if (td.data('missed')!="false"){
+                $(context).find('[name=isMissed]').prop('checked', td.data('missed'));
+            }
+        }
+    </script>
+}
+

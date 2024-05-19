@@ -77,6 +77,9 @@ namespace E_Diary.WEB
             app.UseAuthentication();
 
             app.UseAuthorization();
+            app.MapControllerRoute(
+                name: "areaRoute",
+                pattern: "{area:exists}/{controller}/{action}/{id?}");
 
             app.MapControllerRoute(
                 name: "default",

@@ -1,0 +1,108 @@
+﻿@using System.Globalization
+@using E_Diary.WEB.Areas.Manage.Models
+@using E_Diary.WEB.Data.Entities
+@model ScheduleViewModel
+@inject E_Diary.WEB.Data.ASPIdentityDBContext context
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    var group = context.Groups.Find(Model.GroupId);
+}
+<h6 class="text-danger">ВНИМАНИЕ! Уроки, не входящие ни в один аттестационный период, не будут показаны учителям, ученикам и родителям</h6>
+<h2>Расписание @group.Year@group.Literal класса</h2>
+<div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+    <ul class="navbar-nav flex-grow-1 flex-row">
+        <li class="me-2">
+            <a asp-controller="Main" asp-action="Index"><button class="btn btn-secondary rounded-1">Назад</button></a>
+        </li>
+    </ul>
+</div>
+<div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+    <ul class="navbar-nav flex-grow-1 flex-row">
+        <li class="me-2">
+            <a asp-action="Index" asp-route-groupId="@Model.GroupId" asp-route-date="@Model.StartOfWeek.AddDays(-7)">&lt;&lt;</a>
+        </li>
+        <li class="me-2">
+            <p>@Model.StartOfWeek.Day @CultureInfo.CurrentCulture.DateTimeFormat.MonthGenitiveNames[Model.StartOfWeek.Month - 1] - @Model.EndOfWeek.Day @CultureInfo.CurrentCulture.DateTimeFormat.MonthGenitiveNames[Model.EndOfWeek.Month - 1]</p>
+        </li>
+        <li class="me-2">
+            <a asp-action="Index" asp-route-groupId="@Model.GroupId" asp-route-date="@Model.StartOfWeek.AddDays(7)">&gt;&gt;</a>
+        </li>
+    </ul>
+</div>
+<div class="container-fluid">
+    @for (int i = 0; i < 6; i++)
+    {
+        var date = @Model.StartOfWeek.AddDays(i);
+        <div class="bg-secondary bg-opacity-25 rounded-2 mb-2">
+            <p class="bg-primary text-light p-3 rounded-top m-0 border-0">
+                @date.Day
+                @CultureInfo.CurrentCulture.DateTimeFormat.MonthGenitiveNames[date.Month - 1]
+            </p>
+            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                <form class="form-actions no-color navbar-nav align-items-center flex-grow-1 flex-row" asp-action="AddLesson">
+                    <input name="Date" hidden value="@date" />
+                    <div class="form-control bg-transparent border-0">
+                        <select name="LessonNumber" required>
+                            @for (int j = 1; j <= 10; j++)
+                            {
+                                if (!context.Lessons
+                                .Any(l =>
+                                l.Date == date
+                                &&
+                                l.LessonOnDayNumber == j
+                                &&
+                                l.LessonInfo.Group.Id == group.Id
+                                ))
+                                {
+                                    <option value="@j">@j урок</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="form-control bg-transparent border-0">
+                        <select name="TeacherGroupSubjectId" required>
+                            @foreach (TeacherGroupSubject teacherGroupSubject in context.TeacherGroupSubjects
+                           .Where(tgs => tgs.Group.Id == Model.GroupId).ToList())
+                            {
+                                <option value="@teacherGroupSubject.Id">
+                                    @teacherGroupSubject.Teacher.User.Surname
+                                    @teacherGroupSubject.Teacher.User.Name
+                                    @teacherGroupSubject.Teacher.User.Patronymic
+                                    @teacherGroupSubject.Subject.Name
+                                </option>
+                            }
+                        </select>
+                    </div>
+                    <div class="form-control bg-transparent border-0">
+                        <input type="submit" value="Добавить" class="btn btn-success rounded-2" />
+                    </div>
+                </form>
+            </div>
+            @{int iterator = 0;}
+            @foreach (Lesson lesson in Model.Lessons.Where(l => l.Date == date).OrderBy(l => l.LessonOnDayNumber))
+            {
+                string className = ++iterator % 2 == 0 ? "bg-transparent" : "bg-white bg-opacity-50";
+                <div class="container-fluid @className p-1">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <p class="m-0 text-muted">
+                                @lesson.LessonOnDayNumber @lesson.LessonInfo.Subject.Name
+                            </p>
+                        </div>
+                        <div class="col-lg-6">
+                            <a asp-action="DeleteLesson" asp-route-id="@lesson.Id" asp-route-date="@date" asp-route-groupId="@group.Id">
+                                <button type="button" class="btn btn-secondary">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x" viewBox="0 0 16 16">
+                                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"></path>
+                                    </svg>
+                                </button>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

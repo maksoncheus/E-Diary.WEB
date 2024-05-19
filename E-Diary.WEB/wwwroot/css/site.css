@@ -1,30 +1,31 @@
 html {
-  font-size: 14px;
+    font-size: 14px;
 }
 
 @media (min-width: 768px) {
-  html {
-    font-size: 16px;
-  }
+    html {
+        font-size: 16px;
+    }
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
 html {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100%;
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
 }
 
 .btn-outline-darkborder {
     color: #000;
     border-color: #000;
 }
+
 .form-choice {
     position: absolute;
     display: none;
@@ -38,22 +39,26 @@ body {
     z-index: 2;
     cursor: default;
 }
+
 .mark_choice_items_grid {
     display: flex;
     flex-wrap: wrap;
     flex-direction: row-reverse;
     justify-content: flex-end;
 }
+
 .grade_badge {
     width: 28px;
     height: 28px;
     cursor: pointer;
     text-transform: capitalize;
+    align-content:center
 }
-.grade_cont
-{
+
+.grade_cont {
     margin: 4px 4px;
 }
+
 @charset "UTF-8";
 
 .journal-page .fullscreen {
@@ -240,11 +245,12 @@ body {
             border-left: none;
             width: 300px;
         }
+
         .journal-page .table-nsu.table-journal thead th.avg {
             position: absolute;
             right: 0;
-            text-align : center;
-            vertical-align : central;
+            text-align: center;
+            vertical-align: central;
             border-left: none;
             width: 100px;
         }
@@ -289,12 +295,14 @@ body {
             align-items: center;
             justify-content: flex-start;
         }
+
         .journal-page .table-nsu.table-journal tbody td:last-child {
             position: absolute;
             right: 0;
-            width:100px;
-            border-left:solid;
+            width: 100px;
+            border-left: solid;
         }
+
         .journal-page .table-nsu.table-journal tbody td.can-edit {
             cursor: pointer;
         }
@@ -522,7 +530,7 @@ body {
         display: inline-block !important;
         background-color: #FFFFFF;
         color: #11103C;
-        border: 1px solid #72C81E;
+        border: 1px solid #00ccff;
     }
 
         .journal-page .badge.badge-input:hover {
@@ -704,3 +712,17 @@ body {
     padding: 0 10px;
     margin: 0 auto;
 }
+
+.btn-mark {
+    background-color: #ccf5ff;
+    
+    color: black;
+}
+    .btn-mark:hover {
+        background-color: #99ebff;
+    }
+    .btn-check:checked + .btn-mark, .btn-check:active + .btn-mark, .btn-mark:active, .btn-mark.active, .show > .btn-mark.dropdown-toggle {
+        background-color: #00ccff;
+        
+        color:aliceblue;
+    }

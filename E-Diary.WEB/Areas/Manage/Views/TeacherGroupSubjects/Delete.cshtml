@@ -1,0 +1,41 @@
+﻿@model E_Diary.WEB.Data.Entities.TeacherGroupSubject
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h1>Удалить</h1>
+
+<h3>Вы уверены?</h3>
+<div>
+    <h4>Предмет, назначенный классу и учителю</h4>
+    <hr />
+    <dl class="row">
+        <dt>
+            Учитель
+        <dd>
+                @Model.Teacher.User.Surname @Model.Teacher.User.Name @Model.Teacher.User.Patronymic
+        </dd>
+        </dt>
+
+        <dt>
+            Класс
+        <dd>
+                @Model.Group.Year@Model.Group.Literal
+        </dd>
+        </dt>
+
+        <dt>
+            Предмет
+        <dd>
+                @Model.Subject.Name
+        </dd>
+        </dt>
+    </dl>
+    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Удалить" class="btn btn-danger" /> |
+        <a asp-action="Index" class="btn btn-secondary rounded-1">Вернуться к списку</a>
+    </form>
+</div>

@@ -31,9 +31,9 @@ namespace E_Diary.WEB.Controllers
             {
                 User? user = _context.Users.FirstOrDefault(x => x.UserName == username);
                 if (await _userManager.IsInRoleAsync(user, "admin"))
-                    return RedirectToAction("Index", "Admin");
+                    return RedirectToAction("Index", "Main", new { area = "Manage" });
                 if (await _userManager.IsInRoleAsync(user, "teacher"))
-                    return RedirectToAction("Index", "Teacher");
+                    return RedirectToAction("Main", "Journal", new {area="Teacher"});
                 if (await _userManager.IsInRoleAsync(user, "schoolboy"))
                     return RedirectToAction("Profile", "Account");
             }

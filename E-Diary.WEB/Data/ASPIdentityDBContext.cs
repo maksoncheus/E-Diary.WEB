@@ -14,6 +14,10 @@ namespace E_Diary.WEB.Data
         public DbSet<Admin> Admins { get; set; }
         public DbSet<Student> Students { get; set; }
         public DbSet<Lesson> Lessons { get; set; }
+        public DbSet<StudyYear> StudyYears { get; set; }
+        public DbSet<PeriodGrade> PeriodGrades { get; set; }
+        public DbSet<YearGrade> YearGrades { get; set; }
+        public DbSet<CertificationPeriod> CertificationPeriods { get; set; }
         public DbSet<TeacherGroupSubject> TeacherGroupSubjects { get; set; }
         public DbSet<Subject> Subjects { get; set; }
         public DbSet<Grade> Grades { get; set; }

@@ -44,7 +44,7 @@ namespace E_Diary.WEB.Controllers
                     if (signInResult.Succeeded)
                     {
                         await _signInManager.SignInAsync(user, false);
-                        return RedirectToAction("Index", "Home");
+                        return RedirectToAction("Index", "Home", new { area=""});
                         if (await _userManager.IsInRoleAsync(user,"admin"))
                             return RedirectToAction("Index", "Admin");
                         if (await _userManager.IsInRoleAsync(user,"teacher"))
@@ -85,7 +85,7 @@ namespace E_Diary.WEB.Controllers
         public async Task<IActionResult> LogOut()
         {
             await _signInManager.SignOutAsync();
-            return RedirectToAction("Login", "Account");
+            return RedirectToAction("Login", "Account", new {area=""});
         }
         [HttpGet]
         public IActionResult GetGeneratedPassword()
