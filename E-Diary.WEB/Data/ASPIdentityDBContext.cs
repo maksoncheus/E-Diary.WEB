@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using E_Diary.WEB.Models;
+using System.Reflection.Emit;
 
 namespace E_Diary.WEB.Data
 {
@@ -20,6 +21,7 @@ namespace E_Diary.WEB.Data
         public DbSet<CertificationPeriod> CertificationPeriods { get; set; }
         public DbSet<TeacherGroupSubject> TeacherGroupSubjects { get; set; }
         public DbSet<Subject> Subjects { get; set; }
+        public DbSet<Parent> Parents { get; set; }
         public DbSet<Grade> Grades { get; set; }
         public ASPIdentityDBContext(DbContextOptions<ASPIdentityDBContext> options)
             : base(options)
@@ -36,6 +38,7 @@ namespace E_Diary.WEB.Data
                     "ValidLessonNumber",
                     "LessonOnDayNumber > 0 AND LessonOnDayNumber < 11")
                 );
+            builder.Entity<Parent>().HasMany(p => p.Children).WithMany(c => c.Parents);
         }
     }
 }

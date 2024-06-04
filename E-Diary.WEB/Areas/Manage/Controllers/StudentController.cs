@@ -73,7 +73,7 @@ namespace E_Diary.WEB.Areas.Manage.Controllers
             }
 
             int pageSize = 10;
-            return View(await PaginatedList<Student>.CreateAsync(students, pageNumber ?? 1, pageSize));
+            return View(await PaginatedList<Data.Entities.Student>.CreateAsync(students, pageNumber ?? 1, pageSize));
         }
 
         // GET: Student/Details/5
@@ -128,7 +128,7 @@ namespace E_Diary.WEB.Areas.Manage.Controllers
                     if (result.Succeeded)
                     {
                         await _userManager.AddToRoleAsync(user, "schoolboy");
-                        Student _student = new Student()
+                        Data.Entities.Student _student = new Data.Entities.Student()
                         {
                             Group = group,
                             User = user
@@ -189,7 +189,7 @@ namespace E_Diary.WEB.Areas.Manage.Controllers
             {
                 try
                 {
-                    Student? _student = await _context.Students.FindAsync(student.Id);
+                    Data.Entities.Student? _student = await _context.Students.FindAsync(student.Id);
                     User? _user = await _userManager.FindByIdAsync(student.UserId);
                     Group? _group = await _context.Groups.FindAsync(student.GroupId);
                     if (_user != null && _group != null && _student != null)

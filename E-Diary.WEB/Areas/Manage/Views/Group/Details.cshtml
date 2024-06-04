@@ -1,6 +1,8 @@
 ﻿@model GroupViewModel
 @using E_Diary.WEB.Areas.Manage.Models
+@using E_Diary.WEB.Data
 @using E_Diary.WEB.Data.Entities
+@inject ASPIdentityDBContext context
 @{
     ViewData["Title"] = "Details";
 }
@@ -22,14 +24,24 @@
             @Html.DisplayFor(model => model.Literal)
         </dd>
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Students)
+            @Html.DisplayNameFor(model => model.ClassroomTeacherId)
+        <dd>
+            @{
+                Teacher teacher = await context.Teachers.FindAsync(Model.ClassroomTeacherId);
+            }
+            @teacher.User.Surname @teacher.User.Name @teacher.User.Patronymic
+        </dd>
         </dt>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Students)
+        
         @foreach(Student student in Model.Students)
         {
             <dd>
                 @student.User.Surname @student.User.Name @student.User.Patronymic
             </dd>
         }
+        </dt>
     </dl>
 </div>
 <div>

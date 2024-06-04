@@ -1,4 +1,8 @@
-﻿@model E_Diary.WEB.Data.Entities.Group
+﻿@using E_Diary.WEB.Areas.Manage.Models
+@using E_Diary.WEB.Data
+@using E_Diary.WEB.Data.Entities
+@inject ASPIdentityDBContext context;
+@model GroupViewModel
 
 @{
     ViewData["Title"] = "Edit";
@@ -26,6 +30,23 @@
                 <label asp-for="Literal" class="control-label"></label>
                 <input asp-for="Literal" class="form-control" />
                 <span asp-validation-for="Literal" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ClassroomTeacherId" class="control-label"></label>
+                <select asp-for="ClassroomTeacherId" class="form-control" required>
+                    @foreach (Teacher teacher in context.Teachers)
+                    {
+                        @if (teacher.Id == Model.ClassroomTeacherId)
+                        {
+                            <option selected data-tokens="@teacher.User.Surname @teacher.User.Name @teacher.User.Patronymic" value="@teacher.Id">@teacher.User.Surname @teacher.User.Name @teacher.User.Patronymic</option>
+                        }
+                        else
+                        {
+                            <option data-tokens="@teacher.User.Surname @teacher.User.Name @teacher.User.Patronymic" value="@teacher.Id">@teacher.User.Surname @teacher.User.Name @teacher.User.Patronymic</option>
+                        }
+                    }
+                </select>
+                <span asp-validation-for="ClassroomTeacherId" class="text-danger"></span>
             </div>
             <div class="form-group mt-3 mb-3">
                 <input type="submit" value="Сохранить" class="btn btn-primary" />

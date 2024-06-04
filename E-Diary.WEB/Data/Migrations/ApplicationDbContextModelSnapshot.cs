@@ -112,6 +112,9 @@ namespace E_Diary.WEB.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("ClassroomTeacherId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Literal")
                         .IsRequired()
                         .HasColumnType("nvarchar(1)");
@@ -120,6 +123,8 @@ namespace E_Diary.WEB.Data.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ClassroomTeacherId");
 
                     b.HasIndex("Year", "Literal")
                         .IsUnique();
@@ -138,11 +143,17 @@ namespace E_Diary.WEB.Data.Migrations
                     b.Property<DateOnly>("Date")
                         .HasColumnType("date");
 
+                    b.Property<string>("HomeWork")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("LessonInfoId")
                         .HasColumnType("int");
 
                     b.Property<int>("LessonOnDayNumber")
                         .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -152,6 +163,24 @@ namespace E_Diary.WEB.Data.Migrations
                         {
                             t.HasCheckConstraint("ValidLessonNumber", "LessonOnDayNumber > 0 AND LessonOnDayNumber < 11");
                         });
+                });
+
+            modelBuilder.Entity("E_Diary.WEB.Data.Entities.Parent", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Parents");
                 });
 
             modelBuilder.Entity("E_Diary.WEB.Data.Entities.PeriodGrade", b =>
@@ -171,8 +200,8 @@ namespace E_Diary.WEB.Data.Migrations
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("Value")
-                        .HasColumnType("int");
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -273,6 +302,9 @@ namespace E_Diary.WEB.Data.Migrations
                     b.Property<int>("GroupId")
                         .HasColumnType("int");
 
+                    b.Property<int>("StudyYearId")
+                        .HasColumnType("int");
+
                     b.Property<int>("SubjectId")
                         .HasColumnType("int");
 
@@ -282,6 +314,8 @@ namespace E_Diary.WEB.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("GroupId");
+
+                    b.HasIndex("StudyYearId");
 
                     b.HasIndex("SubjectId");
 
@@ -298,22 +332,22 @@ namespace E_Diary.WEB.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("CertificationPeriodId")
+                    b.Property<int>("StudyYearId")
                         .HasColumnType("int");
 
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("Value")
-                        .HasColumnType("int");
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("YearInfoId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CertificationPeriodId");
+                    b.HasIndex("StudyYearId");
 
                     b.HasIndex("UserId");
 
@@ -529,6 +563,21 @@ namespace E_Diary.WEB.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("ParentStudent", b =>
+                {
+                    b.Property<int>("ChildrenId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ParentsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ChildrenId", "ParentsId");
+
+                    b.HasIndex("ParentsId");
+
+                    b.ToTable("ParentStudent");
+                });
+
             modelBuilder.Entity("E_Diary.WEB.Data.Entities.User", b =>
                 {
                     b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUser");
@@ -587,6 +636,17 @@ namespace E_Diary.WEB.Data.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("E_Diary.WEB.Data.Entities.Group", b =>
+                {
+                    b.HasOne("E_Diary.WEB.Data.Entities.Teacher", "ClassroomTeacher")
+                        .WithMany()
+                        .HasForeignKey("ClassroomTeacherId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ClassroomTeacher");
+                });
+
             modelBuilder.Entity("E_Diary.WEB.Data.Entities.Lesson", b =>
                 {
                     b.HasOne("E_Diary.WEB.Data.Entities.TeacherGroupSubject", "LessonInfo")
@@ -596,6 +656,15 @@ namespace E_Diary.WEB.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("LessonInfo");
+                });
+
+            modelBuilder.Entity("E_Diary.WEB.Data.Entities.Parent", b =>
+                {
+                    b.HasOne("E_Diary.WEB.Data.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("E_Diary.WEB.Data.Entities.PeriodGrade", b =>
@@ -657,6 +726,12 @@ namespace E_Diary.WEB.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("E_Diary.WEB.Data.Entities.StudyYear", "StudyYear")
+                        .WithMany()
+                        .HasForeignKey("StudyYearId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("E_Diary.WEB.Data.Entities.Subject", "Subject")
                         .WithMany()
                         .HasForeignKey("SubjectId")
@@ -671,6 +746,8 @@ namespace E_Diary.WEB.Data.Migrations
 
                     b.Navigation("Group");
 
+                    b.Navigation("StudyYear");
+
                     b.Navigation("Subject");
 
                     b.Navigation("Teacher");
@@ -678,9 +755,9 @@ namespace E_Diary.WEB.Data.Migrations
 
             modelBuilder.Entity("E_Diary.WEB.Data.Entities.YearGrade", b =>
                 {
-                    b.HasOne("E_Diary.WEB.Data.Entities.CertificationPeriod", "CertificationPeriod")
+                    b.HasOne("E_Diary.WEB.Data.Entities.StudyYear", "StudyYear")
                         .WithMany()
-                        .HasForeignKey("CertificationPeriodId")
+                        .HasForeignKey("StudyYearId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -696,7 +773,7 @@ namespace E_Diary.WEB.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("CertificationPeriod");
+                    b.Navigation("StudyYear");
 
                     b.Navigation("User");
 
@@ -750,6 +827,21 @@ namespace E_Diary.WEB.Data.Migrations
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("ParentStudent", b =>
+                {
+                    b.HasOne("E_Diary.WEB.Data.Entities.Student", null)
+                        .WithMany()
+                        .HasForeignKey("ChildrenId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("E_Diary.WEB.Data.Entities.Parent", null)
+                        .WithMany()
+                        .HasForeignKey("ParentsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

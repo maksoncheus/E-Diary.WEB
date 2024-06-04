@@ -1,0 +1,139 @@
+﻿@using E_Diary.WEB.Areas.Student.Controllers
+@using E_Diary.WEB.Areas.Student.Models
+@using E_Diary.WEB.Data
+@using E_Diary.WEB.Data.Entities
+@using Microsoft.AspNetCore.Identity
+@model GradesViewModel
+@inject ASPIdentityDBContext context;
+@inject UserManager<User> userManager;
+@{
+    ViewBag.Page = "Grades";
+    List<CertificationPeriod> possiblePeriods = new();
+    CertificationPeriod period = await context.CertificationPeriods.FindAsync(Model.CertificationPeriod.Id);
+    if (period != null)
+        possiblePeriods = context.CertificationPeriods.Where(p => p.StudyYear == period.StudyYear).OrderBy(p => p.End).ToList();
+}
+
+<div class="border-bottom border-1 border-dark d-flex flex-row px-4" style="margin-left: -1.5rem; margin-right: -1.5rem; max-width: 100vw !important">
+    <span class="@(ViewBag.Page == "Schedule" ? HomeController.selectedGradePageConst : "") p-2" style="margin-bottom:-1px;">
+        @if (ViewBag.Page == "Schedule")
+        {
+            <span>Расписание</span>
+        }
+        else
+        {
+            <a asp-action="Schedule" class="link-primary text-decoration-none">Расписание</a>
+        }
+    </span>
+    <span class="@(ViewBag.Page == "Grades" ? HomeController.selectedGradePageConst : "") p-2" style="margin-bottom:-1px;">
+        @if (ViewBag.Page == "Grades")
+        {
+            <span>Оценки</span>
+        }
+        else
+        {
+            <a asp-action="Grades" class="link-primary text-decoration-none">Оценки</a>
+        }
+    </span>
+</div>
+
+@if (period != null)
+{
+    string prevClass = possiblePeriods.IndexOf(period) > 0 ? string.Empty : "disabled";
+    string nextClass = possiblePeriods.IndexOf(period) < possiblePeriods.Count() - 1 ? string.Empty : "disabled";
+    <ul class="navbar-nav flex-grow-1 flex-row justify-content-end">
+        <li class="me-2">
+            <a asp-action="Grades" class="btn btn-link @prevClass"
+               asp-route-periodId="@(prevClass == string.Empty ? possiblePeriods[possiblePeriods.IndexOf(period) - 1].Id : -1)">&lt;&lt;</a>
+        </li>
+        <li class="me-2">
+            <p>@period?.Name</p>
+        </li>
+        <li>
+            <a asp-action="Grades" class="btn btn-link @nextClass"
+               asp-route-periodId="@(nextClass == string.Empty ? possiblePeriods[possiblePeriods.IndexOf(period) + 1].Id : -1)">&gt;&gt;</a>
+        </li>
+    </ul>
+}
+
+<div class="m-0 mt-4 container border-1 border-top border-bottom border-start border-end border-info" style="min-width:100% !important;">
+    <div class="row p-2 border-bottom border-secondary border-1" style="background-color:#cce2ff">
+        <div class="text-break border-end border-1 border-secondary col-sm-1 align-content-center">Предмет</div>
+        <div class="d-flex flex-row flex-wrap border-end border-1 border-secondary col-sm-8">
+            <span>Оценки</span>
+        </div>
+        <div class="border-end border-1 border-secondary col-sm-1 text-center align-content-center">
+            <div>
+                <span>Пропуски</span>
+            </div>
+        </div>
+        <div class="border-end border-1 border-secondary col-sm-1 text-center align-content-center">
+            <div>
+                <span>Средняя</span>
+            </div>
+        </div>
+        <div class="col-sm-1 text-center align-content-center">Четвертная</div>
+    </div>
+    @foreach (Subject subject in Model.Subjects)
+    {
+        <div class="row p-2 border-bottom border-secondary border-1">
+            <div class="text-break border-end border-1 border-secondary col-sm-1 align-content-center">@subject.Name</div>
+            <div class="d-flex flex-row flex-wrap border-end border-1 border-secondary col-sm-8">
+                @{
+                    int missed = 0;
+                    int gradeCount = 0;
+                    int gradeSum = 0;
+                }
+                @foreach (Grade grade in Model.Grades.Where(g => g.Lesson.LessonInfo.Subject == subject))
+                {
+                    if (grade.IsMissed) missed++;
+                    if (grade.Value != null && grade.Value != string.Empty)
+                    {
+                        gradeSum += Convert.ToInt32(grade.Value.First().ToString()); gradeCount++;
+                    }
+                    <div class="mark-content m-1">
+                        <span class="gradeTooltip badge @(grade.Value?.Length > 0 ? $"statement-mark-{grade.Value.First()}" : "" ?? "")" title="@($"{grade.Lesson.Date} {grade.Lesson.LessonOnDayNumber} урок")">@grade?.Value</span>
+                    </div>
+                }
+            </div>
+            <div class="border-end border-1 border-secondary col-sm-1 text-center align-content-center">
+                <div class="mark-content m-1 ">
+                    <span class="badge badge-grey">@missed</span>
+                </div>
+            </div>
+            <div class="border-end border-1 border-secondary col-sm-1 text-center align-content-center">
+                @{
+                    string res = string.Empty;
+                    if (gradeCount != 0)
+                        res = Math.Round((double)gradeSum / (double)gradeCount, 2).ToString();
+                    <div class="mark-content m-1 ">
+                        <span class="badge @(res.Length > 0 ? $"statement-mark-{Math.Round(Convert.ToDouble(res) + 0.01).ToString().First()}" : "")">@res</span>
+                    </div>
+                }
+            </div>
+            <div class="col-sm-1 text-center align-content-center">
+                @{
+                    User? user = await userManager.GetUserAsync(User);
+                    string value = context.PeriodGrades.FirstOrDefault(g => g.User.Id == user.Id && g.CertificationPeriod == period && g.PeriodInfo.Subject == subject)?.Value;
+                    <div class="mark-content m-1 ">
+                        <span class="badge @(value?.Length > 0 ? $"statement-mark-{value}" : "" ?? "")">@value</span>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-migrate-3.0.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
+
+    <script>
+        $('.gradeTooltip').each(() => {
+            $(this).tooltip()
+        })
+    </script>
+}

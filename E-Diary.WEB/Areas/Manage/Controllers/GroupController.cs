@@ -50,14 +50,15 @@ namespace E_Diary.WEB.Areas.Manage.Controllers
             {
                 return NotFound();
             }
-            List<Student> studentsInGroup = await _context.Students.Where(
+            List<Data.Entities.Student> studentsInGroup = await _context.Students.Where(
     s => s.Group.Id == group.Id).ToListAsync();
             GroupViewModel model = new GroupViewModel()
             {
                 Id = group.Id,
                 Year = group.Year,
                 Literal = group.Literal,
-                Students = studentsInGroup
+                Students = studentsInGroup,
+                ClassroomTeacherId = group.ClassroomTeacher.Id
             };
             return View(model);
         }
@@ -66,7 +67,7 @@ namespace E_Diary.WEB.Areas.Manage.Controllers
         [Authorize(Roles = "admin")]
         public IActionResult Create()
         {
-            return View();
+            return View(new GroupViewModel() { Year = 1, Literal = 'А'});
         }
 
         // POST: Group/Create
@@ -75,23 +76,35 @@ namespace E_Diary.WEB.Areas.Manage.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "admin")]
-        public async Task<IActionResult> Create([Bind("Id,Year,Literal")] Group @group)
+        public async Task<IActionResult> Create(GroupViewModel model)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Add(@group);
+                    Data.Entities.Teacher? teacher = await _context.Teachers.FindAsync(model.ClassroomTeacherId);
+                    if(teacher == null)
+                    {
+                        ModelState.AddModelError(string.Empty, "Такого учителя не существует");
+                        throw new Exception();
+                    }
+                    Group group = new()
+                    {
+                        Year = model.Year,
+                        Literal = model.Literal,
+                        ClassroomTeacher = teacher
+                    };
+                    _context.Add(group);
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
                 {
                     ViewBag.Error = "Невозможно добавить такой класс! Проверьте данные";
-                    return View(@group);
+                    return View(model);
                 }
             }
-            return View(@group);
+            return View(model);
         }
 
         // GET: Group/Edit/5
@@ -108,7 +121,14 @@ namespace E_Diary.WEB.Areas.Manage.Controllers
             {
                 return NotFound();
             }
-            return View(@group);
+            GroupViewModel model = new GroupViewModel()
+            {
+                Id = group.Id,
+                Year = group.Year,
+                Literal = group.Literal,
+                ClassroomTeacherId = group.ClassroomTeacher.Id
+            };
+            return View(model);
         }
 
         // POST: Group/Edit/5
@@ -117,23 +137,25 @@ namespace E_Diary.WEB.Areas.Manage.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "admin")]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Year,Literal")] Group @group)
+        public async Task<IActionResult> Edit(GroupViewModel model)
         {
-            if (id != @group.Id)
-            {
-                return NotFound();
-            }
-
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(@group);
+                    Group? group = await _context.Groups.FindAsync(model.Id);
+                    Data.Entities.Teacher? teacher = await _context.Teachers.FindAsync(model.ClassroomTeacherId);
+                    if( teacher == null) return NotFound();
+                    if (group == null) { return NotFound(); }
+                    group.Literal = model.Literal;
+                    group.Year = model.Year;
+                    group.ClassroomTeacher = teacher;
+                    _context.Entry(group).State = EntityState.Modified;
                     await _context.SaveChangesAsync();
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!GroupExists(@group.Id))
+                    if (!GroupExists(model.Id))
                     {
                         return NotFound();
                     }
@@ -145,11 +167,11 @@ namespace E_Diary.WEB.Areas.Manage.Controllers
                 catch (Exception ex)
                 {
                     ViewBag.Error = "Невозможно изменить класс. Проверьте данные";
-                    return View(@group);
+                    return View(model);
                 }
                 return RedirectToAction(nameof(Index));
             }
-            return View(@group);
+            return View(model);
         }
 
         // GET: Group/Delete/5
@@ -167,14 +189,15 @@ namespace E_Diary.WEB.Areas.Manage.Controllers
             {
                 return NotFound();
             }
-            List<Student> studentsInGroup = await _context.Students.Where(
+            List<Data.Entities.Student> studentsInGroup = await _context.Students.Where(
                 s => s.Group.Id == group.Id).ToListAsync();
             GroupViewModel model = new GroupViewModel()
             {
                 Id = group.Id,
                 Year = group.Year,
                 Literal = group.Literal,
-                Students = studentsInGroup
+                Students = studentsInGroup,
+                ClassroomTeacherId = group.ClassroomTeacher.Id
             };
             return View(model);
         }

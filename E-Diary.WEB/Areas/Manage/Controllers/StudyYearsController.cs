@@ -12,6 +12,9 @@ using E_Diary.WEB.Areas.Manage.Models;
 
 namespace E_Diary.WEB.Areas.Manage.Controllers
 {
+    /// <summary>
+    /// Контроллер "Аттестационные периоды"
+    /// </summary>
     [Area("Manage")]
     public class StudyYearsController : Controller
     {
@@ -41,18 +44,27 @@ namespace E_Diary.WEB.Areas.Manage.Controllers
 
             return View(studyYear);
         }
+        /// <summary>
+        /// Переход на страницу создания нового учебного года
+        /// </summary>
         public IActionResult Create()
         {
             return View();
         }
+        /// <summary>
+        /// Отправка формы на странице создания нового учебного года
+        /// </summary>
+        /// <param name="studyYear">Учебный год</param>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Start,End")] StudyYear studyYear)
         {
             if (ModelState.IsValid)
             {
+                //Проверяем валидность учебного года
                 if (IsYearValid(studyYear))
                 {
+                    //Проверяем, нет ли уже учебного года в указанном диапазоне
                     if (!ContextHaveOtherYearInRange(studyYear))
                     {
                         _context.Add(studyYear);
@@ -65,6 +77,10 @@ namespace E_Diary.WEB.Areas.Manage.Controllers
             }
             return View(studyYear);
         }
+        /// <summary>
+        /// Переход на страницу редактирования учебного года
+        /// </summary>
+        /// <param name="id">ID учебного года</param>
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -79,6 +95,12 @@ namespace E_Diary.WEB.Areas.Manage.Controllers
             }
             return View(studyYear);
         }
+        /// <summary>
+        /// Отправка формы на странице редактирования учебного года
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="studyYear"></param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Start,End")] StudyYear studyYear)
@@ -122,7 +144,10 @@ namespace E_Diary.WEB.Areas.Manage.Controllers
             }
             return View(studyYear);
         }
-
+        /// <summary>
+        /// Удалить учебный год
+        /// </summary>
+        /// <param name="id">ID учебного года</param>
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -162,7 +187,10 @@ namespace E_Diary.WEB.Areas.Manage.Controllers
         {
             return View(new CreateCertificationPeriodViewModel() { StudyYearId = yearId});
         }
-
+        /// <summary>
+        /// Создать аттестационный период (четверть, триместр, семестр)
+        /// </summary>
+        /// <param name="model">Модель представления для создания</param>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateCertificationPeriod(CreateCertificationPeriodViewModel model)
@@ -194,7 +222,10 @@ namespace E_Diary.WEB.Areas.Manage.Controllers
             return View(model);
         }
 
-        // GET: Manage/CertificationPeriods/Edit/5
+        /// <summary>
+        /// Редактирование аттестационного периода
+        /// </summary>
+        /// <param name="id">ID аттестационного периода</param>
         public async Task<IActionResult> EditCertificationPeriod(int? id)
         {
             if (id == null)
@@ -218,9 +249,10 @@ namespace E_Diary.WEB.Areas.Manage.Controllers
             return View(model);
         }
 
-        // POST: Manage/CertificationPeriods/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        /// <summary>
+        /// Отправка формы на странице редактирования аттестационного периода
+        /// </summary>
+        /// <param name="model">Модель представления для редактирования</param>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditCertificationPeriod(EditCertificationPeriodViewModel model)
@@ -262,8 +294,11 @@ namespace E_Diary.WEB.Areas.Manage.Controllers
             }
             return View(model);
         }
-
-        // POST: Manage/CertificationPeriods/Delete/5
+        /// <summary>
+        /// Удалить аттестационный период
+        /// </summary>
+        /// <param name="id">ID аттестационного периода</param>
+        /// <returns></returns>
         [HttpPost, ActionName("DeleteCertificationPeriod")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteCertificationPeriod(int id)

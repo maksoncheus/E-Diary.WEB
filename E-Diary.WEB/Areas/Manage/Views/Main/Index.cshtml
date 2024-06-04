@@ -50,6 +50,27 @@
         </nav>
     </details>
     <details class="accordion-item">
+        <summary class="accordion-button rounded-top border-bottom-0">Управление родителями</summary>
+        <nav class="accordion-body navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-top box-shadow mb-3">
+            <div class="container-fluid">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+                        aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
+                        <li class="me-2">
+                            <a asp-controller="Parent" asp-action="Create" class="btn btn-success rounded-2">Добавить</a>
+                        </li>
+                        <li class="me-2">
+                            <a asp-controller="Parent" asp-action="Index" class="btn btn-secondary rounded-2">Список</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </details>
+    <details class="accordion-item">
         <summary class="accordion-button rounded-top border-bottom-0">Управление учителями</summary>
         <nav class="accordion-body navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-top box-shadow mb-3">
             <div class="container-fluid">

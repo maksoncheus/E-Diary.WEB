@@ -8,5 +8,6 @@ namespace E_Diary.WEB.Data.Entities
         [DisplayName("Класс")]
         public virtual Group Group { get; set; }
         public virtual User User { get; set; }
+        public virtual ICollection<Parent> Parents { get; set; }
     }
 }

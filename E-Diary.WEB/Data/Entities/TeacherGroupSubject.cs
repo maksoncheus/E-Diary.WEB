@@ -12,5 +12,7 @@ namespace E_Diary.WEB.Data.Entities
         public virtual Group Group { get; set; }
         [DisplayName("Предмет")]
         public virtual Subject Subject { get; set; }
+        [DisplayName("Учебный год")]
+        public virtual StudyYear StudyYear { get; set; }
     }
 }

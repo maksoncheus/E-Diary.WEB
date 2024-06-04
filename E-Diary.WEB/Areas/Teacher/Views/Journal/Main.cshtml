@@ -7,6 +7,7 @@
     Teacher teacher = context.Teachers.FirstOrDefault(
         t => t.User.UserName == User.Identity.Name
     );
+    StudyYear? year = context.StudyYears.OrderBy(y => y.End).LastOrDefault(y => y.Start <= desiredDate);
 }
 <nav class="mb-4">
     <div class="border border-dark rounded-2">
@@ -23,8 +24,10 @@
             </div>
             <div class="col-11 ms-2 mt-2" valign="middle">
                 <div class="selection selection-choose-classes">
+                    @if(year != null)
+                    {
                     @foreach (TeacherGroupSubject tgs in context.TeacherGroupSubjects.AsEnumerable()
-                    .Where(t => t.Teacher.Id == teacher.Id).DistinctBy(t => t.Group.Id))
+                    .Where(t => t.Teacher.Id == teacher.Id && t.StudyYear.Id == year.Id).DistinctBy(t => t.Group.Id))
                     {
 
                         <a asp-controller="Journal" asp-action="Grades" 
@@ -35,15 +38,17 @@
                             @tgs.Group.Year@tgs.Group.Literal
                         </a>
                     }
+                    }
                 </div>
             </div>
         </div>
     </div>
 
 </nav>
+<div class="d-flex justify-content-between">
 <div class="w-33">
     <h3>
-        Расписание на <form class="form-check-inline" asp-action="Index">
+        Расписание на <form class="form-check-inline" asp-action="Main">
             <input type="date" name="date" value="@desiredDate.ToString("yyyy-MM-dd")" onchange="form.submit()" />
         </form>
     </h3>
@@ -91,7 +96,7 @@
                                                 @foreach (Lesson lesson in thisNumberLessons)
                                                 {
                                                     <div>
-                                                        <a asp-controller="Journal" asp-action="Index"
+                                                        <a asp-controller="Journal" asp-action="Grades"
                                                         asp-route-groupId="@lesson.LessonInfo.Group.Id"
                                                         asp-route-subjectId="@lesson.LessonInfo.Subject.Id">
                                                             @lesson.LessonInfo.Group.Year@lesson.LessonInfo.Group.Literal
@@ -110,6 +115,34 @@
                             }
                         }
                     }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <div class="w-33" style="text-align:end;">
+        <h3>
+            Классное руководство
+        </h3>
+
+        <div class="p-4 border-1 border-bottom border-top border-start border-end border-secondary" id="schedule">
+            <div class="schedule__day">
+                <div class="schedule__day__content">
+                    <div class="schedule__day__content__header ">
+                        <h5>
+                            Мои классы
+                        </h5>
+                    </div>
+                    <div class="schedule__day__content__column">
+                        @foreach(Group group in context.Groups.Where(g => g.ClassroomTeacher.Id == teacher.Id))
+                        {
+                            <div class="text-center m-2 p-3 rounded-2 border-1 border-black border-top border-bottom border-start border-end">
+                                <a href="#" style="font-size:20px;">
+                                    @group.Year@group.Literal
+                                </a>
+                            </div>
+                        }
+                    </div>
                 </div>
             </div>
         </div>

@@ -12,5 +12,7 @@ namespace E_Diary.WEB.Data.Entities
         public int Year { get; set; }
         [DisplayName("Буква класса")]
         public char Literal { get; set; }
+        [DisplayName("Классный руководитель")]
+        public virtual Teacher ClassroomTeacher { get; set; }
     }
 }

@@ -1,0 +1,92 @@
+﻿@using System.Globalization
+@using E_Diary.WEB.Areas.Manage.Models
+@using E_Diary.WEB.Areas.Student.Controllers
+@using E_Diary.WEB.Data.Entities
+@model ScheduleViewModel
+@inject E_Diary.WEB.Data.ASPIdentityDBContext context
+@{
+    ViewBag.Page = "Schedule";
+    var group = context.Groups.Find(Model.GroupId);
+}
+
+<div class="border-bottom border-1 border-dark d-flex flex-row px-4" style="margin-left: -1.5rem; margin-right: -1.5rem; max-width: 100vw !important">
+    <span class="@(ViewBag.Page == "Schedule" ? HomeController.selectedGradePageConst : "") p-2" style="margin-bottom:-1px;">
+        @if (ViewBag.Page == "Schedule")
+        {
+            <span>Расписание</span>
+        }
+        else
+        {
+            <a asp-action="Schedule" class="link-primary text-decoration-none">Расписание</a>
+        }
+    </span>
+    <span class="@(ViewBag.Page == "Grades" ? HomeController.selectedGradePageConst : "") p-2" style="margin-bottom:-1px;">
+        @if (ViewBag.Page == "Grades")
+        {
+            <span>Оценки</span>
+        }
+        else
+        {
+            <a asp-action="Grades" class="link-primary text-decoration-none">Оценки</a>
+        }
+    </span>
+</div>
+<h2>Расписание @group.Year@group.Literal класса</h2>
+<div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+    <ul class="navbar-nav flex-grow-1 flex-row">
+        <li class="me-2">
+            <a asp-action="Schedule" asp-route-groupId="@Model.GroupId" asp-route-date="@Model.StartOfWeek.AddDays(-7)">&lt;&lt;</a>
+        </li>
+        <li class="me-2">
+            <p>@Model.StartOfWeek.Day @CultureInfo.CurrentCulture.DateTimeFormat.MonthGenitiveNames[Model.StartOfWeek.Month - 1] - @Model.EndOfWeek.Day @CultureInfo.CurrentCulture.DateTimeFormat.MonthGenitiveNames[Model.EndOfWeek.Month - 1]</p>
+        </li>
+        <li class="me-2">
+            <a asp-action="Schedule" asp-route-groupId="@Model.GroupId" asp-route-date="@Model.StartOfWeek.AddDays(7)">&gt;&gt;</a>
+        </li>
+    </ul>
+</div>
+<div class="container-fluid p-0">
+    @for (int i = 0; i < 6; i++)
+    {
+        var date = @Model.StartOfWeek.AddDays(i);
+        <div class="bg-secondary bg-opacity-25 rounded-2 mb-2">
+            <p class="opacity-100 text-light p-3 rounded-top m-0 border-0" style="background-color:#00BFFF;">
+                @date.Day
+                @CultureInfo.CurrentCulture.DateTimeFormat.MonthGenitiveNames[date.Month - 1]
+            </p>
+            @{
+                int iterator = 0;
+            }
+            @{
+                IEnumerable<Lesson> lessons = Model.Lessons.Where(l => l.Date == date);
+            }
+            @if(lessons.Count() == 0)
+            {
+                <div class="p-1">
+                    <p>На этот день уроков нет</p>
+                    </div>
+            }
+            @foreach (Lesson lesson in Model.Lessons.Where(l => l.Date == date).OrderBy(l => l.LessonOnDayNumber))
+            {
+                string className = ++iterator % 2 == 0 ? "bg-transparent" : "bg-white bg-opacity-50";
+                <div class="container-fluid @className p-1">
+                    <div class="row">
+                        <div class="col-md-2 text-break d-flex flex-column">
+                            <div class="d-flex flex-row">
+                            <p class="me-2 text-muted">
+                                @lesson.LessonOnDayNumber
+                            </p>
+                                <p> @lesson.LessonInfo.Subject.Name</p>
+                            </div>
+                            <p class="text-muted small">Преподаватель: @lesson.LessonInfo.Teacher.User.Surname @(lesson.LessonInfo.Teacher.User.Name.First()). @(lesson.LessonInfo.Teacher.User.Patronymic?.First().ToString() ?? "")</p>
+                        </div>
+                        <div class="col-md-10 d-flex flex-column">
+                            <p class="text-break fw-bold">Тема занятия: @(string.IsNullOrEmpty(lesson.Title) ? "не указана" : lesson.Title)</p>
+                            <p class="text-break mt-2">Домашнее задание: @(string.IsNullOrEmpty(lesson.HomeWork) ? "не указано" : lesson.HomeWork)</p>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

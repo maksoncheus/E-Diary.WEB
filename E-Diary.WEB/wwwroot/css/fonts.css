@@ -1,0 +1,51 @@
+﻿@supports (font-variation-settings: normal) {
+    @font-face {
+        ascent-override: 100%;
+        font-display: swap;
+        font-family: Intervar;
+        font-style: normal;
+        font-weight: 100 900;
+        src: url(../src/fonts/inter_roman.woff2) format("woff2 supports variations(gvar)"),url(../src/fonts/inter_roman.woff2) format("woff2-variations"),url(../src/fonts/inter_roman.woff2) format("woff2")
+    }
+
+    @font-face {
+        ascent-override: 100%;
+        font-display: swap;
+        font-family: Intervar;
+        font-style: italic;
+        font-weight: 100 900;
+        src: url(../src/fonts/inter_italic.woff2) format("woff2 supports variations(gvar)"),url(../src/fonts/inter_italic.woff2) format("woff2-variations"),url(../src/fonts/inter_italic.woff2) format("woff2")
+    }
+}
+
+@font-face {
+    font-display: block;
+    font-family: font awesome light;
+    font-style: normal;
+    font-weight: 300;
+    src: url(../src/fonts/fa_light.woff2) format("woff2")
+}
+
+@font-face {
+    font-display: block;
+    font-family: font awesome regular;
+    font-style: normal;
+    font-weight: 400;
+    src: url(../src/fonts/fa_regular.woff2) format("woff2")
+}
+
+@font-face {
+    font-display: block;
+    font-family: font awesome solid;
+    font-style: normal;
+    font-weight: 900;
+    src: url(../src/fonts/fa_solid.woff2) format("woff2")
+}
+
+@font-face {
+    font-display: block;
+    font-family: font awesome brands;
+    font-style: normal;
+    font-weight: 400;
+    src: url(../src/fonts/fa_brands.woff2) format("woff2")
+}

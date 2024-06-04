@@ -1,0 +1,451 @@
+﻿@model AnnualGradesViewModel
+@using E_Diary.WEB.Areas.Teacher.Controllers
+@using E_Diary.WEB.Areas.Teacher.Models
+@using E_Diary.WEB.Data.Entities
+@using System.Globalization
+@inject E_Diary.WEB.Data.ASPIdentityDBContext context
+@{
+    ViewBag.Page = "AnnualGrades";
+    TeacherGroupSubject teacherGroupSubject = await context.TeacherGroupSubjects.FindAsync(Model.TeacherGroupSubjectId);
+    StudyYear? year = await context.StudyYears.FindAsync(Model.StudyYearId);
+    Teacher teacher = context.Teachers.FirstOrDefault(
+        t => t.User.UserName == User.Identity.Name
+    );
+    List<CertificationPeriod> possiblePeriods = new();
+    possiblePeriods = context.CertificationPeriods.Where(p => p.StudyYear == year && p.End <= DateOnly.FromDateTime(DateTime.Today).AddDays(7)).OrderBy(p => p.End).ToList();
+}
+<nav class="mb-4">
+    <div class="border border-dark rounded-2">
+        <div class="container-fluid d-flex">
+            <div class="col-1 border-end border-dark" valign="middle" width="120px">
+                <h3 class="fw-bold mt-4 mb-4 text-center">
+                    @teacherGroupSubject.Group.Year@teacherGroupSubject.Group.Literal
+                </h3>
+            </div>
+            <div class="col-6 ms-2 mt-2" valign="middle">
+                <div class="selection selection-choose-classes">
+                    @foreach (TeacherGroupSubject tgs in context.TeacherGroupSubjects.AsEnumerable()
+                    .Where(t => t.Teacher.Id == teacher.Id && t.StudyYear.Id == teacherGroupSubject.StudyYear.Id).DistinctBy(t => t.Group.Id))
+                    {
+                        if (tgs.Group.Id == teacherGroupSubject.Group.Id)
+                        {
+                            <span class="btn btn-outline-primary btn-outline-darkborder active"
+                                  style="pointer-events:none" data-toggle="button"
+                                  aria-pressed="true" autocomplete="off" role="button">
+                                @tgs.Group.Year@tgs.Group.Literal
+                            </span>
+                        }
+                        else
+                        {
+                            <a asp-action="AnnualGrades" asp-route-groupId="@tgs.Group.Id"
+                               asp-route-yearId="@(year?.Id ?? -1)"
+                               class="btn btn-outline-primary btn-outline-darkborder"
+                               data-toggle="button" aria-pressed="false"
+                               autocomplete="off" role="button">
+                                @tgs.Group.Year@tgs.Group.Literal
+                            </a>
+                        }
+                    }
+                </div>
+            </div>
+            <div class="col-5 ms-2 mt-2" valign="middle">
+                <div class="selection selection-choose-classes">
+                    @foreach (TeacherGroupSubject tgs in context.TeacherGroupSubjects.AsEnumerable()
+                    .Where(t => t.Teacher.Id == teacher.Id && t.Group.Id == teacherGroupSubject.Group.Id && t.StudyYear.Id == teacherGroupSubject.StudyYear.Id))
+                    {
+                        if (tgs.Subject.Id == teacherGroupSubject.Subject.Id)
+                        {
+                            <span class="btn btn-outline-primary btn-outline-darkborder active"
+                                  style="pointer-events:none" data-toggle="button"
+                                  aria-pressed="true" autocomplete="off" role="button">
+                                @tgs.Subject.Name
+                            </span>
+                        }
+                        else
+                        {
+                            <a asp-action="AnnualGrades"
+                               asp-route-groupId="@teacherGroupSubject.Group.Id"
+                               asp-route-subjectId="@tgs.Subject.Id" asp-route-yearId="@(year?.Id ?? -1)"
+                               class="btn btn-outline-primary btn-outline-darkborder"
+                               data-toggle="button" aria-pressed="false"
+                               autocomplete="off" role="button">
+                                @tgs.Subject.Name
+                            </a>
+                        }
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+<div class="border-bottom border-1 border-dark d-flex flex-row px-4" style="margin-left: -1.5rem; margin-right: -1.5rem; max-width: 100vw !important">
+    <span class="@(ViewBag.Page == "Grades" ? JournalController.selectedGradePageConst : "") p-2" style="margin-bottom:-1px;">
+        @if (ViewBag.Page == "Grades")
+        {
+            <span>Отметки</span>
+        }
+        else
+        {
+            <a asp-action="Grades" class="link-primary text-decoration-none">Отметки</a>
+        }
+    </span>
+    <span class="@(ViewBag.Page == "AnnualGrades" ? JournalController.selectedGradePageConst : "") p-2" style="margin-bottom:-1px;">
+        @if (ViewBag.Page == "AnnualGrades")
+        {
+            <span>Итоговые</span>
+        }
+        else
+        {
+            <a asp-action="AnnualGrades" class="link-primary text-decoration-none">Итоговые</a>
+        }
+    </span>
+</div>
+<div class="journal-page">
+    <div class="content">
+        <h4 class="mt-3">@teacherGroupSubject.Subject.Name : <span class="text-success">Итоговые</span></h4>
+        <h5 class="mt-3">@year.Start.Year - @year.End.Year год</h5>
+        <div id="journal-content" class="">
+
+            <div class="block-table mt-4">
+
+                @{
+                    string width = ((possiblePeriods.Count() + (year.End <= DateOnly.FromDateTime(DateTime.Today).AddDays(7) ? 1 : 0)) * 75).ToString() + "px";
+                }
+                <div class="block-table-inner dragscroll" id="dragscroll">
+                    <table class="table table-nsu table-journal" style="width: @width">
+                        <thead style="width: @width;">
+                            <tr>
+                                <th class="user journal-first-header" style="left: 0px;"></th>
+                                @foreach (CertificationPeriod certPeriod in possiblePeriods)
+                                {
+                                    <th class="statement-column journal-first-header attendance mine date-passed" style="height:50px;">
+                                        <span>
+                                            <div class="p-0 m-0">
+                                                <div class="col p-0 m-0">@certPeriod.Name</div>
+                                            </div>
+                                        </span>
+                                    </th>
+                                }
+                                @if (year.End <= DateOnly.FromDateTime(DateTime.Today).AddDays(7))
+                                {
+                                    <th class="journal-first-header">Годовая</th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                var students = context.Students.Where(s => s.Group.Id == teacherGroupSubject.Group.Id).ToList();
+                            }
+                            @for (int i = 0; i < students.Count(); i++)
+                            {
+                                <tr>
+                                    <td class="user">
+                                        <span class="user-num">@(i + 1)</span>
+                                        <a target="_blank" href="/">
+                                            <span class="d-none d-sm-block user-fullname">@students[i].User.Surname @students[i].User.Name @students[i].User.Patronymic</span>
+                                            <span class="d-block d-sm-none user-shortname">@students[i].User.Surname @(students[i].User.Name.First()). @(students[i].User.Patronymic?.First()).</span>
+                                        </a>
+                                    </td>
+                                    @foreach (CertificationPeriod period in possiblePeriods)
+                                    {
+                                        PeriodGrade? grade = context.PeriodGrades.FirstOrDefault(g => g.CertificationPeriod.Id == period.Id && g.User.Id == students[i].User.Id && g.PeriodInfo.Id == teacherGroupSubject.Id);
+                                        string dataGrade = grade?.Value ?? "none";
+                                        <td class="td-data can-edit mine annual_grade" data-grade="@dataGrade" data-gradeType="certification" data-period="@period.Id" data-student="@students[i].Id" data-group="@teacherGroupSubject.Group.Id" data-subject="@teacherGroupSubject.Subject.Id">
+                                            <div class="mark-content">
+                                                <span class="badge badge-grey">@grade?.Value</span>
+                                            </div>
+                                            <div class="bg-white p-2 mt-2 form-choice" style="display:none; ">
+                                            </div>
+                                        </td>
+                                    }
+                                    @if (year.End < DateOnly.FromDateTime(DateTime.Today).AddDays(7))
+                                    {
+                                        YearGrade? grade = context.YearGrades.FirstOrDefault(g => g.StudyYear.Id == year.Id && g.User.Id == students[i].User.Id && g.YearInfo.Id == teacherGroupSubject.Id);
+                                        string dataGrade = grade?.Value ?? "none";
+                                        <td class="td-data can-edit mine grade" data-grade="@dataGrade" data-year="@year.Id" data-gradeType="year" data-student="@students[i].Id" data-group="@teacherGroupSubject.Group.Id" data-subject="@teacherGroupSubject.Subject.Id">
+                                            <div class="mark-content">
+                                                <span class="badge badge-grey">@grade?.Value</span>
+                                            </div>
+                                            <div class="bg-white p-2 mt-2 form-choice" style="display:none; ">
+                                            </div>
+                                        </td>
+                                    }
+                                    <td style="border:unset !important; background: unset !important"></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="mark_choice_content" id="mark-choice-grade" style="display: none">
+        <form asp-action="SetGrade" class="mark_choice_items_grid">
+            <div class="grade_cont">
+                <label class="grade_badge m-0 p-0 pe-none"></label>
+            </div>
+            <div class="grade_cont">
+                <input type="radio" class="btn-check" name="grade" id="grade5" value="5" autocomplete="off">
+                <label class="btn btn-mark border-1 border rounded-1 grade_badge m-0 p-0" for="grade5">5</label>
+            </div>
+            <div class="grade_cont">
+                <input type="radio" class="btn-check" name="grade" id="grade5-" value="5-" autocomplete="off">
+                <label class="btn btn-mark border-1 border rounded-1 grade_badge m-0 p-0" for="grade5-">5-</label>
+            </div>
+
+            <div class="grade_cont">
+                <input type="radio" class="btn-check" name="grade" id="grade4+" value="4+" autocomplete="off">
+                <label class="btn btn-mark border-1 border rounded-1 grade_badge m-0 p-0" for="grade4+">4+</label>
+            </div>
+            <div class="grade_cont">
+                <input type="radio" class="btn-check" name="grade" id="grade4" value="4" autocomplete="off">
+                <label class="btn btn-mark border-1 border rounded-1 grade_badge m-0 p-0" for="grade4">4</label>
+            </div>
+            <div class="grade_cont">
+                <input type="radio" class="btn-check" name="grade" id="grade4-" value="4-" autocomplete="off">
+                <label class="btn btn-mark border-1 border rounded-1 grade_badge m-0 p-0" for="grade4-">4-</label>
+            </div>
+
+            <div class="grade_cont">
+                <input type="radio" class="btn-check" name="grade" id="grade3+" value="3+" autocomplete="off">
+                <label class="btn btn-mark border-1 border rounded-1 grade_badge m-0 p-0" for="grade3+">3+</label>
+            </div>
+            <div class="grade_cont">
+                <input type="radio" class="btn-check" name="grade" id="grade3" value="3" autocomplete="off">
+                <label class="btn btn-mark border-1 border rounded-1 grade_badge m-0 p-0" for="grade3">3</label>
+            </div>
+            <div class="grade_cont">
+                <input type="radio" class="btn-check" name="grade" id="grade3-" value="3-" autocomplete="off">
+                <label class="btn btn-mark border-1 border rounded-1 grade_badge m-0 p-0" for="grade3-">3-</label>
+            </div>
+
+            <div class="grade_cont">
+                <input type="radio" class="btn-check" name="grade" id="grade2+" value="2+" autocomplete="off">
+                <label class="btn btn-mark border-1 border rounded-1 grade_badge m-0 p-0" for="grade2+">2+</label>
+            </div>
+            <div class="grade_cont">
+                <input type="radio" class="btn-check" name="grade" id="grade2" value="2" autocomplete="off">
+                <label class="btn btn-mark border-1 border rounded-1 grade_badge m-0 p-0" for="grade2">2</label>
+            </div>
+            <div class="grade_cont">
+                <input type="radio" class="btn-check" name="grade" id="grade2-" value="2-" autocomplete="off">
+                <label class="btn btn-mark border-1 border rounded-1 grade_badge m-0 p-0" for="grade2-">2-</label>
+            </div>
+
+            <div class="grade_cont">
+                <label class="grade_badge m-0 p-0 pe-none"></label>
+            </div>
+            <div class="grade_cont">
+                <input type="radio" class="btn-check" name="grade" id="grade1" value="1" autocomplete="off">
+                <label class="btn btn-mark border-1 border rounded-1 grade_badge m-0 p-0" for="grade1">1</label>
+            </div>
+            <div class="grade_cont">
+                <label class="grade_badge m-0 p-0 pe-none"></label>
+            </div>
+
+            <div class="d-grid gap-2 w-100">
+                <input type="button" class="btn-success btn" value="Ок" />
+            </div>
+        </form>
+        <form class="mt-1">
+            <div class="w-100 d-flex flex-row-reverse">
+                <input type="button" class="btn-outline-danger btn btn-sm p-1" value="Очистить" />
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        //Скрипт для обработки действий в журнале преподаваля.
+        let journalContent = $('#journal-content'),
+            journalBlock = journalContent.find('.block-table'),
+            journalInner = journalContent.find('.block-table-inner'),
+            journalTable = journalContent.find('table.table-journal'),
+            journalTableHeader = journalTable.find('thead'),
+            targetMarkTD = null;
+        //Обработчик нажатия в теле документа (любое место на странице)
+        $('body').on('click', function (e) {
+            let _target = $(e.target);
+            //Если есть открытая форма выбора оценки - закрыть его
+            if (null !== targetMarkTD && targetMarkTD.has(e.target).length === 0) {
+                hideFormsChoice(targetMarkTD);
+            }
+        });
+        //Обработчик нажатия в таблице оценок.
+        journalTable.on('mouseup', '.td-data.can-edit .mark-content', function (e) {
+            _this = $(this),
+                //Находим ближайшую к клику ячейку в таблице.
+                td = _this.closest('td'),
+                grading = td.data('grading'),
+                form = td.find('.form-choice'),
+                //Находим контент, который будем загружать в форму.
+                //(Все формы находятся рядом с ячейками в DOM и страница будет слишком долго загружаться, если инициализировать их сразу.)
+                content = $("#mark-choice-grade").html();
+
+            targetMarkTD = td;
+            //Если форма, которую пытаемся открыть ещё не открыта
+            if ($(form).children().length === 0) {
+                //Закрываем другую форму, если она открыта
+                hideFormsChoice();
+                td.find('.badge').addClass('badge-input');
+                //Ининциализируем форму
+                form.html(content);
+                loadGradesAndIsMissed(form);
+                form.show();
+
+                let block = journalInner,
+                    blockOffset = block.offset(),
+                    blockWidth = block[0].clientWidth,
+                    blockHeight = block[0].clientHeight,
+                    formOffset = form.offset(),
+                    formWidth = form[0].clientWidth,
+                    formHeight = form[0].clientHeight,
+                    defaultLeft = parseInt(form.css('left')),
+                    defaultTop = parseInt(form.css('top'));
+
+                if (blockOffset.left > formOffset.left) {
+                    // не вмещается слева
+                    form.css('left', defaultLeft + blockOffset.left - formOffset.left);
+                }
+                if (blockOffset.left + blockWidth < formOffset.left + formWidth) {
+                    // не вмещается справа
+                    form.css('left', defaultLeft - ((formOffset.left + formWidth) - (blockOffset.left + blockWidth)) - 1);
+                }
+                if (blockOffset.top + blockHeight < formOffset.top + formHeight) {
+                    // не вмещается снизу
+                    form.css('top', defaultTop - ((formOffset.top + formHeight) - (blockOffset.top + blockHeight)) - 1);
+                }
+            }
+        });
+        //Обработчик нажатия кнопки "Сохранить" в форме выбора оценки
+        journalTable.on('click', '.form-choice .btn-success', function (e) {
+            let _this = $(this),
+                td = _this.closest('td'),
+                form = _this.closest('.form-choice');
+            let url = '';
+            if (td.data('gradetype') === 'certification') {
+                console.log('fafafa')
+                url = '/Teacher/Journal/SetCertificationPeriodGrade'
+            }
+            if (td.data('gradetype') === 'year') {
+                url = '/Teacher/Journal/SetAnnualGrade'
+            }
+            //Асинхронный запрос к серверу - установить новую оценку
+            $.ajax({
+                url: url,
+                type: 'post',
+                dataType: 'html',
+                data: {
+                    studentId: td.data('student'),
+                    certificationPeriodId: td.data('period'),
+                    yearId: td.data('year'),
+                    grade: $(form).find('input:radio:checked').val(),
+                    tgs: @Model.TeacherGroupSubjectId
+                },
+                success: function (response) {
+                    //При успешном исходе вызова меняем внутренний HTML элемента (ставим оценку на клиентской странице
+                    // без необходимости перезагружать её)
+                    td.find('.mark-content').html(response);
+                    td.data('grade', td.find('.badge').html().length > 0 ? td.find('.badge').html() : 'none');
+
+                    hideFormsChoice();
+                },
+                error: function (response) {
+                    console.log(response);
+                }
+            });
+        });
+        //Обработчик кнопки "Очистить" в форме выбора оценок.
+        journalTable.on('click', '.form-choice .btn-outline-danger', function (e) {
+            let _this = $(this),
+                td = _this.closest('td'),
+                form = _this.closest('.form-choice');
+            //Асинхронный запрос к серверу
+            $.ajax({
+                url: '/Teacher/Journal/RemoveGrade',
+                type: 'post',
+                dataType: 'html',
+                data: {
+                    studentId: td.data('student'),
+                    lessonId: td.data('lesson')
+                },
+                success: function (response) {
+                    //Очищаем оценку на клиенте.
+                    td.find('.mark-content').html(response);
+                    td.data('grade', 'none');
+                    td.data('missed', 'false');
+                    //Пересчитываем средний балл
+                    $.ajax({
+                        url: '/Teacher/Journal/GetAverage',
+                        type: 'get',
+                        dataType: 'html',
+                        data: {
+                            studentId: td.data('student'),
+                            groupId: td.data('group'),
+                            subjectId: td.data('subject')
+                        },
+                        success: function (response) {
+                            td.parent().children('.avg').find('.badge').html(response);
+                        },
+                        error: function (response) {
+                        }
+                    });
+
+                    hideFormsChoice();
+                },
+                error: function (response) {
+                }
+            });
+        });
+
+        function loadGradesAndIsMissed(context) {
+            if (undefined === context) return;
+            td = $(context).closest('td');
+            if (td.data('grade') != "none") {
+                $(context).find('[name=grade][value="' + td.data('grade') + '"]').prop('checked', true);
+            }
+            if (td.data('missed') != "false") {
+                $(context).find('[name=isMissed]').prop('checked', td.data('missed'));
+            }
+        }
+        function hideFormsChoice(context) {
+            if (undefined === context) {
+                context = journalContent;
+            }
+            $(context).find('.form-choice').children().remove();
+            $(context).find('.form-choice').removeAttr('style').hide();
+            $(context).find('.badge-input').removeClass('badge-input');
+            //targetMarkTD = null;
+        }
+        //Прокручиваем таблицу в конец
+        let objDiv = document.getElementById("dragscroll");
+        objDiv.scrollLeft = objDiv.scrollWidth;
+        let grade_val;
+        var last_selected;
+        $(document).ready(() => {
+
+            //$('.grade').on('click', ShowChildGradeForm);
+            $('.myCheck').on('click', (e) => {
+                e.stopPropagation();
+                if (this.checked == true)
+                    this.checked = false;
+                else
+                    this.checked = true;
+            });
+        })
+
+
+        function hideMenu(context) {
+            if (undefined === context) {
+                context = journalContent;
+            }
+            $(context).find('.statement-menu').removeAttr('style').hide();
+        }
+
+    </script>
+}
+

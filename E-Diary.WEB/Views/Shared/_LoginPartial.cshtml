@@ -6,12 +6,12 @@
 <ul class="navbar-nav">
 @if (SignInManager.IsSignedIn(User))
 {
-        <li class="nav-item">
-            <a  class="nav-link text-dark" asp-action="Profile" asp-area="" asp-controller="Account" title="Manage">@User.Identity?.Name</a>
+        <li class="nav-item rounded-2 me-1 " style="background-color:#006fe6;">
+            <a class="btn text-light" asp-action="Profile" asp-area="" asp-controller="Account" title="Manage">Профиль</a>
     </li>
     <li class="nav-item">
             <form class="form-inline" asp-area="" asp-action="LogOut" asp-controller="Account">
-            <button class="btn btn-secondary" type="submit" class="nav-link btn btn-link text-dark">Выйти</button>
+            <button class="btn btn-secondary" type="submit">Выйти</button>
         </form>
     </li>
 }

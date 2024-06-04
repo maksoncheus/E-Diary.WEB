@@ -1,0 +1,157 @@
+﻿@using E_Diary.WEB.Data.Entities
+@model E_Diary.WEB.Helpers.PaginatedList<E_Diary.WEB.Data.Entities.Parent>
+
+@{
+    ViewData["Title"] = "Index";
+}
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <form class="modal-content" id="modalForm">
+            <div class="modal-body" id="modalOrderBody">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                <button id="addChildrenButton" type="submit" class="btn btn-success" data-bs-dismiss="modal">Ок</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<h1>Список родителей</h1>
+
+<div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+    <ul class="navbar-nav flex-grow-1 flex-row">
+        <li class="me-2">
+            <a asp-controller="Main" asp-action="Index" class="btn btn-secondary rounded-1">Назад</a>
+        </li>
+        <li class="me-2">
+            <a asp-action="Create" class="btn btn-success rounded-1">Добавить</a>
+        </li>
+    </ul>
+</div>
+
+<form asp-action="Index" method="get">
+    <div class="form-actions no-color">
+        <p>
+            Найти по фамилии: <input type="text" name="SearchString" value="@ViewData["CurrentFilter"]" />
+            <input type="submit" value="Поиск" class="btn btn-default" /> |
+            <a asp-action="Index">Вернуться к полному списку</a>
+        </p>
+    </div>
+</form>
+<div class="container">
+    @foreach (Parent parent in Model)
+    {
+        <div class="row">
+            <div class="d-flex">
+                <h2 class="flex-grow-1">@parent.User.Surname @parent.User.Name @parent.User.Patronymic</h2>
+                <div>
+                    <a asp-action="Edit" asp-route-id="@parent.Id" class="ms-1 btn btn-mark bg-opacity-75"><img src="~/src/images/edit.svg" width="25px" height="25px" /></a>
+                </div>
+                <div>
+                    <form asp-action="Delete" asp-route-id="@parent.Id" method="post" onsubmit="return confirm('Вы уверены что хотите удалить родителя?');">
+                        <button class="ms-1 btn bg-danger bg-opacity-75" type="submit"><img src="~/src/images/trash.svg" width="25px" height="25px" /></button>
+                    </form>
+                </div>
+            </div>
+            <div class="container ps-4">
+                <h5>Дети</h5>
+                <button type="button" data-parent="@parent.Id" data-bs-toggle="modal" data-bs-target="#exampleModal" class="btn btn-sm btn-outline-info child-add">Добавить</button>
+                @foreach (Student student in parent.Children)
+                {
+                    <div class="row d-flex flex-row ps-4 pe-4">
+                        <div class="d-flex">
+                            <span class="align-content-center flex-grow-1">@student.Group.Year @student.Group.Literal @student.User.Surname @student.User.Name @student.User.Patronymic</span>
+                            <div>
+                                <div>
+                                    <form method="post">
+                                        <input type="hidden" name="parentId" value="@parent.Id"/>
+                                        <input type="hidden" name="studentId" value="@student.Id"/>
+                                        <button class="remove-child ms-1 btn bg-danger bg-opacity-75" type="submit"><img src="~/src/images/trash.svg" width="25px" height="25px" /></button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@{
+    var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+    var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+}
+
+<a asp-action="Index"
+   asp-route-sortOrder="@ViewData["CurrentSort"]"
+   asp-route-pageNumber="@(Model.PageIndex - 1)"
+   asp-route-currentFilter="@ViewData["CurrentFilter"]"
+   class="btn btn-default @prevDisabled">
+    Назад
+</a>
+<a asp-action="Index"
+   asp-route-sortOrder="@ViewData["CurrentSort"]"
+   asp-route-pageNumber="@(Model.PageIndex + 1)"
+   asp-route-currentFilter="@ViewData["CurrentFilter"]"
+   class="btn btn-default @nextDisabled">
+    Далее
+</a>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $('.child-add').on('click', function (e) {
+            e.preventDefault();
+            $.ajax({
+                url: 'GetChildrenForm',
+                type: 'get',
+                dataType: 'html',
+                data: {
+                    parentId: $(this).data('parent')
+                },
+                success: function (response) {
+                    $('#modalOrderBody').html(response);
+                },
+                error: function (response) {
+                }
+            });
+        });
+
+        $('#addChildrenButton').on('click', function (e) {
+            e.preventDefault();
+            $.ajax({
+                url: 'AddChild',
+                type: 'post',
+                data: $('#modalForm').serialize(),
+                success: function (response) {
+                    location.reload();
+                },
+                error: function (response) {
+                    console.log(response);
+                }
+            });
+        });
+        $('.remove-child').on('click', function (e) { 
+            e.preventDefault();
+            if (confirm('Вы уверены что хотите удалить ребенка?')) {
+                $.ajax({
+                    url: 'RemoveChild',
+                    type: 'post',
+                    data: $(this).closest('form').serialize(),
+                    success: function (response) {
+                        location.reload();
+                    },
+                    error: function (response) {
+                        console.log(response);
+                    }
+                });
+            }
+        });
+    </script>
+}

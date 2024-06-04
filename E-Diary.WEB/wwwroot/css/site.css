@@ -52,7 +52,7 @@ body {
     height: 28px;
     cursor: pointer;
     text-transform: capitalize;
-    align-content:center
+    align-content: center
 }
 
 .grade_cont {
@@ -715,14 +715,135 @@ body {
 
 .btn-mark {
     background-color: #ccf5ff;
-    
     color: black;
 }
+
     .btn-mark:hover {
         background-color: #99ebff;
     }
+
     .btn-check:checked + .btn-mark, .btn-check:active + .btn-mark, .btn-mark:active, .btn-mark.active, .show > .btn-mark.dropdown-toggle {
         background-color: #00ccff;
-        
-        color:aliceblue;
+        color: aliceblue;
     }
+
+
+
+
+
+.badge {
+    font-size: 1em;
+    font-weight: normal;
+    min-width: 28px;
+    height: 28px;
+    border-radius: 3px;
+    font-family: "PTSansBold", sans-serif;
+    color: #11103C;
+    padding: 0;
+    line-height: 28px;
+    cursor: default;
+}
+
+    .badge.badge-grey {
+        background-color: #E8EDF3;
+        color: #11103C;
+    }
+
+        .badge.badge-grey:hover {
+            background: #EDEFFB !important;
+            color: #11103C !important;
+        }
+
+    .badge.badge-dark-grey {
+        background-color: #434343;
+        color: #fff;
+    }
+
+        .badge.badge-dark-grey:hover {
+            background: #EDEFFB !important;
+            color: #11103C !important;
+        }
+
+    .badge.badge-input {
+        display: inline-block !important;
+        background-color: #FFFFFF;
+        color: #11103C;
+        border: 1px solid #00ccff;
+    }
+
+        .badge.badge-input:hover {
+            background: #FFFFFF !important;
+            color: #11103C !important;
+        }
+
+    .badge.statement-mark-red {
+        background: #DD3131;
+        color: #FFFFFF;
+    }
+
+    .badge.statement-mark-black {
+        background: #434343;
+        color: #FFFFFF;
+    }
+
+    .badge.statement-mark-1 {
+        background: #841515;
+        color: #FFFFFF;
+    }
+
+    .badge.statement-mark-2 {
+        background: #DD3131;
+        color: #FFFFFF;
+    }
+
+    .badge.statement-mark-3 {
+        background: #E96216;
+        color: #FFFFFF;
+    }
+
+    .badge.statement-mark-4 {
+        background: #1DB3E0;
+        color: #FFFFFF;
+    }
+
+    .badge.statement-mark-5 {
+        background: #579B15;
+        color: #FFFFFF;
+    }
+
+.fa {
+    cursor: pointer;
+    display: block;
+    float: left;
+    text-align: center;
+    width: 50%;
+}
+
+    .fa:before {
+        -webkit-font-feature-settings: normal;
+        font-feature-settings: normal;
+        display: inline-block;
+        font-family: font awesome regular;
+        font-style: normal;
+        font-variant: normal;
+        font-weight: 400;
+        line-height: inherit;
+        vertical-align: baseline;
+        vertical-align: initial;
+    }
+
+    .fa.empty {
+        color: #b3ecff !important
+    }
+
+    .fa.filled {
+        color: #0066cc !important;
+    }
+
+.fa-file:before {
+    content: "\f15b";
+}
+
+.fa-home:before {
+    content: "\f015";
+}

@@ -8,6 +8,7 @@
 *@
 @{
     var group = context.Groups.Find(Model.GroupId);
+    StudyYear? year = context.StudyYears.OrderBy(y => y.End).LastOrDefault(y => y.Start <= DateOnly.FromDateTime(DateTime.Today));
 }
 <h6 class="text-danger">ВНИМАНИЕ! Уроки, не входящие ни в один аттестационный период, не будут показаны учителям, ученикам и родителям</h6>
 <h2>Расписание @group.Year@group.Literal класса</h2>
@@ -36,7 +37,7 @@
     {
         var date = @Model.StartOfWeek.AddDays(i);
         <div class="bg-secondary bg-opacity-25 rounded-2 mb-2">
-            <p class="bg-primary text-light p-3 rounded-top m-0 border-0">
+            <p class="opacity-100 text-light p-3 rounded-top m-0 border-0" style="background-color:#00BFFF;">
                 @date.Day
                 @CultureInfo.CurrentCulture.DateTimeFormat.MonthGenitiveNames[date.Month - 1]
             </p>
@@ -64,7 +65,7 @@
                     <div class="form-control bg-transparent border-0">
                         <select name="TeacherGroupSubjectId" required>
                             @foreach (TeacherGroupSubject teacherGroupSubject in context.TeacherGroupSubjects
-                           .Where(tgs => tgs.Group.Id == Model.GroupId).ToList())
+                           .Where(tgs => tgs.Group.Id == Model.GroupId && tgs.StudyYear.Id == year.Id).ToList())
                             {
                                 <option value="@teacherGroupSubject.Id">
                                     @teacherGroupSubject.Teacher.User.Surname

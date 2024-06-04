@@ -56,19 +56,23 @@ namespace E_Diary.WEB.Areas.Manage.Controllers
                         e.Group.Id == vm.GroupId
                         &&
                         e.Subject.Id == vm.SubjectId
+                        &&
+                        e.StudyYear.Id == vm.StudyYearId
                     );
                 if (entry == null)
                 {
                     Group? group = await _context.Groups.FirstOrDefaultAsync(g => g.Id == vm.GroupId);
                     Data.Entities.Teacher? teacher = await _context.Teachers.FirstOrDefaultAsync(t => t.Id == vm.TeacherId);
                     Subject? subject = await _context.Subjects.FirstOrDefaultAsync(s => s.Id == vm.SubjectId);
-                    if (group != null && teacher != null && subject != null)
+                    StudyYear? year = await _context.StudyYears.FirstOrDefaultAsync(y => y.Id == vm.StudyYearId);
+                    if (group != null && teacher != null && subject != null && year != null)
                     {
                         TeacherGroupSubject entity = new()
                         {
                             Teacher = teacher,
                             Subject = subject,
-                            Group = group
+                            Group = group,
+                            StudyYear = year
                         };
                         await _context.AddAsync(entity);
                         await _context.SaveChangesAsync();
@@ -107,7 +111,8 @@ namespace E_Diary.WEB.Areas.Manage.Controllers
                 Id = (int)id,
                 TeacherId = teacherGroupSubject.Teacher.Id,
                 GroupId = teacherGroupSubject.Group.Id,
-                SubjectId = teacherGroupSubject.Subject.Id
+                SubjectId = teacherGroupSubject.Subject.Id,
+                StudyYearId = teacherGroupSubject.StudyYear.Id
             };
             return View(vm);
         }
@@ -129,6 +134,7 @@ namespace E_Diary.WEB.Areas.Manage.Controllers
                 try
                 {
                     var editedEntity = await _context.TeacherGroupSubjects.FindAsync(vm.Id);
+                    if(editedEntity == null) return NotFound();
                     var possibleCollision = await _context.TeacherGroupSubjects.FirstOrDefaultAsync(
                         e =>
                             e.Teacher.Id == vm.TeacherId
@@ -136,17 +142,21 @@ namespace E_Diary.WEB.Areas.Manage.Controllers
                             e.Group.Id == vm.GroupId
                             &&
                             e.Subject.Id == vm.SubjectId
+                            &&
+                            e.StudyYear.Id == vm.StudyYearId
                         );
                     if (possibleCollision == null || possibleCollision.Id == editedEntity.Id)
                     {
                         Group? group = await _context.Groups.FirstOrDefaultAsync(g => g.Id == vm.GroupId);
                         Data.Entities.Teacher? teacher = await _context.Teachers.FirstOrDefaultAsync(t => t.Id == vm.TeacherId);
                         Subject? subject = await _context.Subjects.FirstOrDefaultAsync(s => s.Id == vm.SubjectId);
-                        if (group != null && teacher != null && subject != null)
+                        StudyYear? year = await _context.StudyYears.FirstOrDefaultAsync(y => y.Id == vm.StudyYearId);
+                        if (group != null && teacher != null && subject != null && year != null)
                         {
                             editedEntity.Subject = subject;
                             editedEntity.Teacher = teacher;
                             editedEntity.Group = group;
+                            editedEntity.StudyYear = year;
                             _context.Entry(editedEntity).State = EntityState.Modified;
                             await _context.SaveChangesAsync();
                             return RedirectToAction(nameof(Index));

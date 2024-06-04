@@ -1,5 +1,7 @@
 ﻿@using E_Diary.WEB.Areas.Manage.Models
+@using E_Diary.WEB.Data
 @using E_Diary.WEB.Data.Entities
+@inject ASPIdentityDBContext context
 @model GroupViewModel
 
 @{
@@ -24,6 +26,15 @@
         </dt>
         <dd class = "col-sm-10">
             @Html.DisplayFor(model => model.Literal)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.ClassroomTeacherId)
+        </dt>
+        <dd>
+            @{
+                Teacher teacher = await context.Teachers.FindAsync(Model.ClassroomTeacherId);
+            }
+            @teacher.User.Surname @teacher.User.Name @teacher.User.Patronymic
         </dd>
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Students)

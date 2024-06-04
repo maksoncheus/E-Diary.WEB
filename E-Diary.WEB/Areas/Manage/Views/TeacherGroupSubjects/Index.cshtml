@@ -25,6 +25,7 @@
             <th>Учитель</th>
             <th>Класс</th>
             <th>Предмет</th>
+            <th>Учебный год</th>
             <th></th>
         </tr>
     </thead>
@@ -40,6 +41,9 @@
                 </td>
                 <td>
                     @item.Subject.Name
+                </td>
+                <td>
+                    @item.StudyYear.Start - @item.StudyYear.End г.
                 </td>
                 <td>
                     <a asp-action="Edit" class="btn btn-primary rounded-1" asp-route-id=@item.Id>Редактировать</a>
@@ -58,10 +62,10 @@
 <a asp-action="Index"
    asp-route-pageNumber="@(Model.PageIndex - 1)"
    class="btn btn-default @prevDisabled">
-    Previous
+    Назад
 </a>
 <a asp-action="Index"
    asp-route-pageNumber="@(Model.PageIndex + 1)"
    class="btn btn-default @nextDisabled">
-    Next
+    Далее
 </a>

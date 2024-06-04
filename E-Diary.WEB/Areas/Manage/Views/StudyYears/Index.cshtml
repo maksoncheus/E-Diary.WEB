@@ -34,8 +34,8 @@
                     </form>
                 </div>
             </div>
-            <div class="container">
-                    <h4>Аттестационные периоды</h4>
+            <div class="container ps-4">
+                    <h5>Аттестационные периоды</h5>
                 <a asp-action="CreateCertificationPeriod" asp-route-yearId="@year.Id" class="btn btn-sm btn-outline-info">Добавить</a>
                 @foreach(CertificationPeriod period in context.CertificationPeriods.Where(p => p.StudyYear.Id == year.Id).OrderBy(p => p.End))
                 {

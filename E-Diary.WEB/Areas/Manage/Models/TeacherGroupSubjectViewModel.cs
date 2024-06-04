@@ -16,5 +16,8 @@ namespace E_Diary.WEB.Areas.Manage.Models
         [DisplayName("Предмет")]
         [Required]
         public int SubjectId { get; set; }
+        [DisplayName("Учебный год")]
+        [Required]
+        public int StudyYearId { get; set; }
     }
 }

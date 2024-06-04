@@ -11,6 +11,8 @@ namespace E_Diary.WEB.Areas.Manage.Models
         [DisplayName("Буква класса")]
         public char Literal { get; set; }
         [DisplayName("Список учеников")]
-        public List<Student> Students { get; set; }
+        public List<Data.Entities.Student>? Students { get; set; }
+        [DisplayName("Классный руководитель")]
+        public int ClassroomTeacherId { get; set; }
     }
 }

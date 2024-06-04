@@ -21,6 +21,10 @@ namespace E_Diary.WEB.Data
             {
                 await roleManager.CreateAsync(new IdentityRole("schoolboy"));
             }
+            if (await roleManager.FindByNameAsync("parent") == null)
+            {
+                await roleManager.CreateAsync(new IdentityRole("parent"));
+            }
             if (await userManager.FindByNameAsync(adminEmail) == null)
             {
                 User admin = new User {
