@@ -36,6 +36,8 @@ namespace E_Diary.WEB.Controllers
                     return RedirectToAction("Main", "Journal", new {area = "Teacher"});
                 if (await _userManager.IsInRoleAsync(user, "schoolboy"))
                     return RedirectToAction("Schedule", "Home", new {area = "Student"});
+                if (await _userManager.IsInRoleAsync(user, "parent"))
+                    return RedirectToAction("Index", "Children", new {area = "Parent"});
             }
             return View();
         }

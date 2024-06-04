@@ -69,7 +69,7 @@ namespace E_Diary.WEB.Areas.Manage.Controllers
             }
 
             int pageSize = 10;
-            return View(await PaginatedList<Parent>.CreateAsync(parents, pageNumber ?? 1, pageSize));
+            return View(await PaginatedList<Data.Entities.Parent>.CreateAsync(parents, pageNumber ?? 1, pageSize));
         }
 
         [Authorize(Roles = "admin")]
@@ -245,7 +245,7 @@ namespace E_Diary.WEB.Areas.Manage.Controllers
         {
             try
             {
-                Parent? parent = await _context.Parents.FindAsync(parentId);
+                Data.Entities.Parent? parent = await _context.Parents.FindAsync(parentId);
                 if (parent == null) return string.Empty;
                 StringBuilder sb = new();
                 sb.AppendLine($"<input type=\"hidden\" name = \"parentId\" value=\"{parentId}\" />");
@@ -268,7 +268,7 @@ namespace E_Diary.WEB.Areas.Manage.Controllers
         [HttpPost]
         public async Task<IActionResult> AddChild(int parentId, int studentId)
         {
-            Parent? parent = await _context.Parents.FindAsync(parentId);
+            Data.Entities.Parent? parent = await _context.Parents.FindAsync(parentId);
             Data.Entities.Student? student = await _context.Students.FindAsync(studentId);
             if (parent != null && student != null)
             {
@@ -283,7 +283,7 @@ namespace E_Diary.WEB.Areas.Manage.Controllers
         [HttpPost]
         public async Task<IActionResult> RemoveChild(int parentId, int studentId)
         {
-            Parent? parent = await _context.Parents.FindAsync(parentId);
+            Data.Entities.Parent? parent = await _context.Parents.FindAsync(parentId);
             Data.Entities.Student? student = await _context.Students.FindAsync(studentId);
             if (parent != null && student != null)
             {

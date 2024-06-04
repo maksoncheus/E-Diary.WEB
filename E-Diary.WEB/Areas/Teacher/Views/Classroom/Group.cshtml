@@ -1,0 +1,45 @@
+﻿@using E_Diary.WEB.Areas.Manage.Models
+@using E_Diary.WEB.Areas.Teacher.Models
+@using E_Diary.WEB.Data
+@using E_Diary.WEB.Data.Entities
+@model GroupViewModel
+@inject ASPIdentityDBContext context
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-6 mx-auto">
+            <h3 class="text-center">Ученики @Model.Year@Model.Literal класса</h3>
+            @foreach (Student student in Model.Students)
+            {
+                <div class="container bg-primary bg-opacity-10 rounded-3 p-4 my-2">
+                    <div class="row mt-2 px-2 flex-wrap">
+                        <div class="col align-content-center text-break flex-grow-1">
+                            <h6>@student.User.Surname @student.User.Name @student.User.Patronymic</h6>
+                        </div>
+                        <div class="col text-end">
+                            
+                            <a asp-area="Observe" asp-controller="Student" asp-action="Grades" asp-route-id="@student.User.Id" class="ms-1 btn btn-primary bg-opacity-75">Посмотреть оценки</a>
+                        </div>
+                    </div>
+                    @if (student.Parents.Count != 0)
+                    {
+                        <div class="row small px-3">
+                            <span>Родители:</span>
+                        @foreach (Parent parent in student.Parents)
+                        {
+                            <span class="text-muted px-4 text-break">@parent.User.Surname @parent.User.Name @parent.User.Patronymic</span>
+
+                        }
+                            </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

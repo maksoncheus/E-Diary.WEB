@@ -137,7 +137,7 @@
                         @foreach(Group group in context.Groups.Where(g => g.ClassroomTeacher.Id == teacher.Id))
                         {
                             <div class="text-center m-2 p-3 rounded-2 border-1 border-black border-top border-bottom border-start border-end">
-                                <a href="#" style="font-size:20px;">
+                                <a asp-action="Group" asp-controller="Classroom" asp-route-id="@group.Id" style="font-size:32px;">
                                     @group.Year@group.Literal
                                 </a>
                             </div>

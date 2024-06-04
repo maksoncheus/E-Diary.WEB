@@ -2,77 +2,54 @@
 @using E_Diary.WEB.Data.Entities
 @using Microsoft.AspNetCore.Identity
 @inject UserManager<User> UserManager
-
-<form asp-action="Profile" asp-controller="Account" asp-anti-forgery="true">
-    <div class="validation alert-danger" asp-validation-summary="All"></div>
-    <div>
-        <div class="form-group">
-            <h2 class="card-title">
-                Персональные данные
-            </h2>
-            <div class="input-group" style="justify-content:space-between">
-                <label for="lastname" class="form-label">
-                    Фамилия
-                </label>
-                <div class="form-control">
-                    <input type="text" name="Surname" id="Surname" value="@Model.Surname" class="field field--fill" autocomplete="off" x-autocomplete="off" disabled = "disabled">
-                </div>
-            </div>
-            <div class="input-group">
-                <label for="Name" class="form-label">
-                    Имя
-                </label>
-                <div class="form-control">
-                    <input type="text" name="Name" id="Name" value="@Model.Name" class="field field--fill" autocomplete="off" x-autocomplete="off" disabled="disabled">
-                </div>
-            </div>
-            <div class="input-group">
-                <label for="Patronymic" class="form-label">
-                    Отчество
-                </label>
-                <div class="form-control">
-                    <input type="text" name="Patronymic" id="Patronymic" value="@Model.Patronymic" class="field field--fill" autocomplete="off" x-autocomplete="off" disabled="disabled">
-                </div>
-            </div>
-            <div class="ej-form-group">
-                <label for="sex" class="ej-form-label">
-                    Пол
-                </label>
-                <div class="ej-form-control">
-                    <div class="control-radios" style="display: block">
-                        @if(Model.Gender == E_Diary.WEB.Data.Enums.Gender.Female)
-                        {
-                            <label class="control-radio" tabindex="-1" style="--actor-color: #e377c2;">
-                                <input type="radio" name="sex" value="@Model.Gender" disabled="" checked="checked">
-                                <span class="control-radio__icon"></span>
-                                <span class="control-radio__label">женский</span>
-                            </label>
-                            <label class="control-radio" tabindex="-1" style="--actor-color: #1f77b4;">
-                                <input type="radio" name="sex" value="@Model.Gender" disabled="">
-                                <span class="control-radio__icon"></span>
-                                <span class="control-radio__label">мужской</span>
-                            </label>
-                        }
-                        else
-                        {
-                            <label class="control-radio" tabindex="-1" style="--actor-color: #e377c2;">
-                                <input type="radio" name="sex" value="@Model.Gender" disabled="">
-                                <span class="control-radio__icon"></span>
-                                <span class="control-radio__label">женский</span>
-                            </label>
-                            <label class="control-radio" tabindex="-1" style="--actor-color: #1f77b4;">
-                                <input type="radio" name="sex" value="@Model.Gender" disabled="" checked="checked">
-                                <span class="control-radio__icon"></span>
-                                <span class="control-radio__label">мужской</span>
-                            </label>
-                        }
+<div class="page-content page-container" id="page-content">
+    <div class="padding">
+        <div class="row m-0 d-flex justify-content-center">
+            <div class="col-xl-12 col-md-12">
+                <div class="card user-card-full bg-primary bg-opacity-10">
+                    <div class="row m-l-0 m-r-0">
+                        <div class="col-sm-4 text-dark user-profile">
+                            <div class="card-block text-center">
+                                <div class="m-b-25">
+                                    @if (Model.Gender == E_Diary.WEB.Data.Enums.Gender.Female)
+                                    {
+                                        <img class="rounded-circle bg-primary bg-opacity-25" src="~/src/images/female-user.png" class="img-radius" alt="User-Profile-Image">
+                                    }
+                                    else
+                                    {
+                                        <img class="rounded-circle bg-primary bg-opacity-25" src="~/src/images/male-user.png" class="img-radius" alt="User-Profile-Image">
+                                    }
+                                </div>
+                                <h6 class="mt-2 f-w-600">@Model.Surname @Model.Name @Model.Patronymic</h6>
+                            </div>
+                        </div>
+                        <div class="col-sm-8">
+                            <div class="card-block">
+                                <h6 class="m-b-20 p-b-5 b-b-default f-w-600">Информация</h6>
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <p class="m-b-10 f-w-600">Электронная почта</p>
+                                        <h6 class="text-muted f-w-400">@Model.Email</h6>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <p class="m-b-10 f-w-600">Пол</p>
+                                        <h6 class="text-muted f-w-400">@(Model.Gender == E_Diary.WEB.Data.Enums.Gender.Male ? "Мужской" : "Женский")</h6>
+                                    </div>
+                                </div>
+                                <h6 class="m-b-20 m-t-40 p-b-5 b-b-default f-w-600"></h6>
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        
+                                    </div>
+                                    <div class="col-sm-6">
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-
                 </div>
-            </div>
-            <div class="footer">
-                <input type="submit" name="submit_button" value="Сохранить" class="btn-success" id="submit_button">
             </div>
         </div>
     </div>
-</form>
+</div>

@@ -1,6 +1,8 @@
 ﻿@model E_Diary.WEB.Models.LoginModel
-<form class="min-vw-50 mw-25 position-absolute top-50 start-50 translate-middle m-auto text-center bg-secondary bg-opacity-10 rounded-3 p-4" asp-action="Login" asp-controller="Account" asp-anti-forgery="true">
-    <img src="~/src/images/logo.svg" alt="" width="72" height="72">
+<form class="min-vw-50 mw-25 position-absolute top-50 start-50 translate-middle m-auto text-center bg-primary bg-opacity-10 rounded-3 p-4"
+asp-action="Login" asp-controller="Account" asp-anti-forgery="true"
+      style="border-radius: 2rem !important;">
+    <img src="~/src/images/logo.png" alt="" width="72" height="72">
     <div class="validation alert-danger" asp-validation-summary="All"></div>
     <h1 class="h3 mb-3 fw-normal text-center">Авторизация</h1>
 
@@ -23,7 +25,7 @@
         </div>
     }
     <div class="form-group">
-        <button class="btn btn-secondary rounded-pill" type="submit">Войти</button>
+        <button class="btn btn-primary rounded-pill" type="submit">Войти</button>
     </div>
     <div class="form-group">
         <a class="text-center small text-muted" asp-action="GetResetPasswordLink">Забыли пароль?</a>
