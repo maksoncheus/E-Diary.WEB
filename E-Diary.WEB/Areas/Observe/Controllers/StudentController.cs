@@ -57,6 +57,9 @@ namespace E_Diary.WEB.Areas.Observe.Controllers
         public async Task<IActionResult> Grades(string id, int periodId = -1)
         {
             StudyYear? year = _context.StudyYears.OrderBy(y => y.End).LastOrDefault(y => y.Start <= DateOnly.FromDateTime(DateTime.Today));
+            if (year == null)
+                year = new() { Start = DateOnly.MinValue, End = DateOnly.MaxValue };
+            CertificationPeriod period;
             int certificationPeriodId = 0;
             //Если аттестационный период не указан в запросе, открывается последний на текущую дату
             if (periodId == -1)
@@ -64,10 +67,12 @@ namespace E_Diary.WEB.Areas.Observe.Controllers
                 certificationPeriodId = _context.CertificationPeriods.OrderBy(p => p.End).LastOrDefault(p => p.Start <= DateOnly.FromDateTime(DateTime.Today))?.Id ?? -1;
             }
             else certificationPeriodId = periodId;
-            if (certificationPeriodId == -1)
-                return NotFound();
-            CertificationPeriod period = await _context.CertificationPeriods.FindAsync(certificationPeriodId);
-            if (year == null) return NotFound();
+            if (certificationPeriodId != -1)
+                period = await _context.CertificationPeriods.FindAsync(certificationPeriodId);
+            else
+            {
+                period = new() { Name = "Нет периода", StudyYear = year, Start = DateOnly.MinValue, End = DateOnly.MinValue };
+            }
             User? user = await _context.Users.FindAsync(id);
             if (user == null) { return NotFound(); }
             Data.Entities.Student? student = await _context.Students.FirstOrDefaultAsync(s => s.User.Id == user.Id);

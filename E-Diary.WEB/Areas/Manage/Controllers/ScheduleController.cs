@@ -25,7 +25,7 @@ namespace E_Diary.WEB.Areas.Manage.Controllers
             {
                 Group? firstGroup = await _context.Groups.FirstOrDefaultAsync();
                 if (firstGroup == null)
-                    return BadRequest("Нет ни одного класса");
+                    firstGroup = new() { Id = -1 };
                 groupId = firstGroup.Id;
             }
             DateOnly dateOnly;

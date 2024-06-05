@@ -9,6 +9,7 @@
 @{
     var group = context.Groups.Find(Model.GroupId);
     StudyYear? year = context.StudyYears.OrderBy(y => y.End).LastOrDefault(y => y.Start <= DateOnly.FromDateTime(DateTime.Today));
+    if (year == null) year = new() { Id = -1, End = DateOnly.MaxValue, Start = DateOnly.MaxValue };
 }
 <h6 class="text-danger">ВНИМАНИЕ! Уроки, не входящие ни в один аттестационный период, не будут показаны учителям, ученикам и родителям</h6>
 <h2>Расписание @group.Year@group.Literal класса</h2>
